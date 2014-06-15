@@ -1,0 +1,39 @@
+digraph dependencygraph {
+node [shape=box];
+
+webserver -> ringbinder;
+
+ringbinder -> router [label="ring-handler"];
+
+website -> clostache [label="templater"];
+
+router -> website;
+
+router -> api;
+
+loginform [label="login-form"];
+userdomain [label="user-domain"];
+authbinding [label="auth-binding"];
+ringbinder [label="ring-binder"];
+bootstraploginform [label="bootstrap login-form renderer"];
+sessionstore [label="session store"];
+
+api -> spi;
+
+spi -> channel;
+sse -> channel;
+
+router -> loginform;
+loginform -> bootstraploginform;
+
+loginform -> userdomain;
+loginform -> sessionstore;
+
+userdomain -> userstore;
+userdomain -> passwordhashalgo;
+
+authenticator -> sessionstore;
+authbinding -> authenticator;
+ringbinder -> authbinding;
+
+}

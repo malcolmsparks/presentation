@@ -1,0 +1,21 @@
+* Object Oriented Architecture
+
+** Heading
+
+- Bullet 1
+- Bullet 2
+
+** Heading 2
+
+- Bullet a
+- Bullet b
+
+* Another section
+
+** Some stuff here
+
+#+BEGIN_SRC clojure
+(new java.util.Date)
+#+END_SRC
+
+** Interesting

@@ -1,0 +1,23 @@
+table.sudoku
+{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.sudoku td
+{
+    font-size: 32pt;
+    width: 48px;
+    height: 48px;
+    text-align: center;
+    border: 2px solid grey;
+}
+
+table.sudoku td:nth-child(1) { border-left: 4px solid black; }
+table.sudoku td:nth-child(4) { border-left: 4px solid black; }
+table.sudoku td:nth-child(7) { border-left: 4px solid black; }
+table.sudoku td:nth-child(9) { border-right: 4px solid black; }
+table.sudoku tr:nth-child(1) { border-top: 4px solid black; }
+table.sudoku tr:nth-child(4) { border-top: 4px solid black; }
+table.sudoku tr:nth-child(7) { border-top: 4px solid black; }
+table.sudoku tr:nth-child(9) { border-bottom: 4px solid black; }
