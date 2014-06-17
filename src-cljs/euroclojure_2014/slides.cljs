@@ -159,6 +159,33 @@
                 [:td cell]
                 [:td ""]))])]]))))
 
+(defn layout-nodes [edges]
+  (let [r 30
+        g (dagre/Digraph.)]
+
+    (doseq [node (distinct (apply concat edges))]
+      (.addNode g node #js {:label node :width (* 3 r) :height (* 3 r)}))
+
+    (doseq [[a b] edges]
+      (.addEdge g nil a b))
+
+    (let [layout (.run (dagre/layout) g)
+
+          nodes (into {} (for [[name v] (js->clj (.-_nodes layout))
+                               :let [value (get v "value")
+                                     x (get value "x")
+                                     y (get value "y")]]
+                           [name {:x x :y y
+                                  :w (get value "width")
+                                  :h (get value "height")}]))
+
+          edges (for [[_ v] (js->clj (.-_edges layout))]
+                  (let [{x1 :x y1 :y} (get nodes (get v "u"))
+                        {x2 :x y2 :y} (get nodes (get v "v"))]
+                    {:x1 x1 :y1 y1 :x2 x2 :y2 y2}))]
+      {:nodes nodes
+       :edges edges})))
+
 (defn dep-tree [data owner {:keys [label]}]
   (reify
     om/IRender
@@ -331,6 +358,103 @@
         ])))
 )
 
+
+
+(defn test-graph [data owner]
+  (reify
+    om/IWillMount
+    (will-mount [_]
+      (om/set-state! owner :g 1.0)
+      #_(go-loop [n 10]
+        (<! (timeout 100))
+        (om/set-state! owner :g (+ 1.0 (/ (* 0.4 (Math/sin n)) (* 10 (Math/log n)))))
+        (when (< n 1000)
+          (recur (+ n 4)))))
+
+    om/IRender
+    (render [_]
+      (let [r 30
+            {:keys [nodes edges]}
+            (layout-nodes [["A" "B"]
+                       ["A" "C"]
+                       ["C" "D"]
+                       ["C" "E"]
+                       ["B" "D"]
+                       ["C" "F"]
+                       ["C" "G"]
+                       ["A" "G"]
+                       ["B" "F"]
+                       ["B" "C"]])]
+
+
+        (let [b 60
+              g (om/get-state owner :g)]
+
+;;          (println "b is now " b)
+          (html [:svg {:width 800 :height 500}
+
+                 [:rect {:x 0 :y 0 :width 800 :height 500 :fill "#282"}]
+
+                 (for [[name {:keys [x y w h]}] nodes]
+                   [:g
+                    [:rect {:x (- x r) :y (- y r)
+                            :width (* 2 r)
+                            :height (* 2 r)
+                            :fill "#808080"
+                            :stroke-width "2"
+                            :stroke "black"}]
+                    #_[:circle {:cx x :cy y :r r :fill "white" :stroke "black"}]
+                    #_[:circle {:cx x :cy y :r (- r 2) :fill "white" :stroke "black"}]
+                    [:text {:x (- x 8) :y (+ y 8) :fill "white" :stroke "white"} name]]
+                   )
+                 (for [{:keys [x1 y1 x2 y2]} edges
+                       :let [b (/ (- y2 y1) g)]]
+
+                   [:g
+                    [:path {:d (str "M " x1 "," (+ y1 r)
+                                    " "
+                                    "C " x1 ", " (+ y1 r b)
+                                    " "
+                                    x2 ", " (- y2 r b)
+                                    " "
+                                    x2 "," (- y2 r))
+                            :stroke "black"
+                            :stroke-width "2"
+                            :fill "none"}]
+
+                    ;; Triangle
+                    #_[:path {:d (str "M " x2 "," (- y2 r 2) " l -7,-15 14,0 z")
+                            :stroke "black"
+                            :stroke-width "2"
+                            :fill "white"
+                            :stroke-linejoin "bevel"
+                            }]
+                    ;; Positive
+                    [:circle {:cx x1 :cy (+ y1 r) :r 7
+                              :fill "red"
+                              :stroke-width "2"
+                              :stroke "black"
+                              }]
+                    [:path {:d (str "M " x1 "," (+ y1 r) " l 4,0 -8,0 4,0 0,-4 0,8 0,-4")
+
+                            :stroke-width "2"
+                            :stroke "white"
+                            }]
+
+                    ;; Negative
+                    [:circle {:cx x2 :cy (- y2 r) :r 7
+                              :fill "black"
+                              :stroke-width "2"
+                              :stroke "black"
+                              }]
+                    [:line {:x1 (- x2 4) :y1 (- y2 r)
+                            :x2 (+ x2 4) :y2 (- y2 r)
+                            :stroke-width "2"
+                            :stroke "white"
+                            }]
+
+                    ])]))))))
+
 (defn slide [data owner]
   (reify
     om/IRender
@@ -355,9 +479,11 @@
                       :height "100%"}})
 
            (when-let [image (:image data)]
-             [:div {:style {:float "right"
-                            :transform "rotate(2deg)"
-                            :-webkit-transform "rotate(2deg)"
+             [:div {:style {;;:float "right"
+                            ;;:transform "rotate(2deg)"
+                            ;;:-webkit-transform "rotate(2deg)"
+                            :margin-top "15%"
+                            :margin-bottom "15%"
                             }}
               [:img {:src image :style {:padding "70px"}}]])
 
@@ -481,6 +607,13 @@
 ;; challenge of having lots of engineers working on lots of
 ;; projects. How do we find consistency
 
+     {:subtitle "Introduction"
+      :bullets ["Libraries are great"
+                "Systems are complex"
+                "Let's make our systems easy"
+                "to reason about"]}
+     ;; Is this a Haiku
+
      {:subtitle "Modularity"
       :custom dep-tree
       :opts {:label "Dependency"}}
@@ -522,6 +655,8 @@
      {:subtitle "Bidi" ; show github logo in ztellman style
       :bullets ["Bidirectional routing"]
       }
+
+     {:image "/images/bidi.png"}
 
      {:subtitle "Implicit coupling"
       :custom stefan
@@ -570,8 +705,7 @@
                 "Examples: Router, TemplateModel, MenuIndex"] }
 
      {:subtitle "The Interceptor pattern"
-      :bullets ["A component discovers and depends on all other
-      components of a given type"
+      :bullets ["A component is wired in-between a dependency and its dependants"
                 "Example: WebRequestHandlerHead"] }
 
      ;; btw. about these long names - if we understand that objects are
@@ -583,7 +717,7 @@
 
      {:title "Security"}
 
-     {:subtitle "Security challenge"
+     {:subtitle "The security challenge"
       :bullets ["Tried-and-tested security by default"
                 "Flexibility of 'roll-your-own'"]
       }
@@ -604,17 +738,22 @@
 
      {:subtitle "Authorizer"}
 
-     {:title "Cylon"} ; show github logo in ztellman style
+     {:image "/images/cylon.png"}
+
      {:subtitle "Cylon"
       :bullets ["Protocol definitions for security concepts"
                 "Reference implementations"]}
-     ;; show github logo in ztellman style
 
-     {:title "Modular"} ; show github logo in ztellman style
+     {:image "/images/modular.png"}
+
+
 
      {:title "lein new modular myproject"}
 
      {:title "modularity.org"}
+
+     {:subtitle "TEST"
+      :custom test-graph}
 
      ]}))
 

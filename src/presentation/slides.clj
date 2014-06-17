@@ -11,7 +11,7 @@
           [:html :body {:height (percent 100)
                         :padding 0
                         :margin 0
-                        :background "#faf8f2"
+                        :background "#ffffff"
                         :overflow :hidden
                         }]
           [:.deck-container
