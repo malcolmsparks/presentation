@@ -100,18 +100,18 @@
 
    ;; ClojureScript modules are components too
    :cljs-core (new-cljs-module :name :cljs :mains ['cljs.core] :dependencies #{})
-   :cljs-speakerconf-2014 (new-cljs-module
+   :speakerconf (new-cljs-module
                           :name :speakerconf-2014
                           :mains ['speakerconf-2014.slides]
                           :dependencies #{:cljs})
 
-   :cljs-euroclojure-2014 (new-cljs-module
+   :euroclojure (new-cljs-module
                           :name :euroclojure-2014
                           :mains ['euroclojure-2014.slides]
                           :dependencies #{:cljs})
 
    ;; As are the ClojureScript builders which run on each reset
-   :slides-cljs-builder
+   :cljs-builder
    (new-cljs-builder :id :slides :source-path "src-cljs")
 
    ;; Another WebService
@@ -129,13 +129,13 @@
 
     ;; which wraps content in wrap-template, provided by html-template
     :template-model {:web-meta :web-meta
-                     :cljs-builder :slides-cljs-builder}
+                     :cljs-builder :cljs-builder}
 
     :sse {:channel :channel}
 
-    :slides-cljs-builder [:cljs-core
-                          :cljs-speakerconf-2014
-                          :cljs-euroclojure-2014]
+    :cljs-builder [:cljs-core
+                   :speakerconf
+                   :euroclojure]
     }
 
    (autowire-dependencies-satisfying system-map :router WebService)

@@ -164,7 +164,7 @@
         g (dagre/Digraph.)]
 
     (doseq [node (distinct (apply concat edges))]
-      (.addNode g node #js {:label node :width (* 3 r) :height (* 3 r)}))
+      (.addNode g node #js {:label node :width (* 6 r) :height (* 2 r)}))
 
     (doseq [[a b] edges]
       (.addEdge g nil a b))
@@ -182,7 +182,8 @@
           edges (for [[_ v] (js->clj (.-_edges layout))]
                   (let [{x1 :x y1 :y} (get nodes (get v "u"))
                         {x2 :x y2 :y} (get nodes (get v "v"))]
-                    {:x1 x1 :y1 y1 :x2 x2 :y2 y2}))]
+                    {:x1 x1 :y1 y1 :x2 x2 :y2 y2
+                     :from (get v "u") :to (get v "v")}))]
       {:nodes nodes
        :edges edges})))
 
@@ -266,75 +267,102 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (println "mounting dependency tree: data is " (:data data))
       (src/load-data (:data data) owner))
 
     om/IWillUpdate
     (will-update [_ np ns]
-      (println "updating dependency tree")
       (when (not= data np)
         (src/load-data (:data np) owner)))
 
     om/IRender
     (render [_]
-      (println "rendering")
-      (.dir js/console (om/get-state owner [:data]))
-      (let [
-            g (dagre/Digraph.)
-            nodes (set (concat
-                        (map name (keys (om/get-state owner [:data])))
-                        (map name (map second (mapcat seq (vals (om/get-state owner [:data])))))))
-            edges (for [[k v] (om/get-state owner [:data])
-                        v v]
-                    [(name k) (name (second v))])]
+      (let [{:keys [nodes edges]}
+            (layout-nodes
+             (for [[k v] (om/get-state owner [:data])
+                   v v]
+               [(name k) (name (second v))]))]
 
-        (doseq [node nodes]
-          (.addNode g node (clj->js {:label node
-                                     ;; some guessimate of the width
-                                     :width (+ 50 (* 10 (count node)))
-                                     :height 50})))
+        (html
+         [:svg {:width 1000 :height 700 :viewBox "-20 -20 1000 700" :style {:border "0px solid black"}}
 
-        (doseq [[node1 node2] edges]
-          (.addEdge g nil node1 node2))
+          [:g
+           (for [[name {:keys [x y w h]}] nodes]
+             [:g {:onMouseOver (fn [ev] (om/update! data [:selected] name))}
+              [:rect {:x (- x (int (/ w 2)))
+                      :y (- y (int (/ h 2)))
+                      :rx 4 :ry 4
+                      :width w
+                      :height h
+                      :fill "#ec3"
+                      :stroke (if (= name (:selected data)) "blue" "black")
+                      :stroke-width (if (= name (:selected data)) 5 2)}]
+              [:text {:x (- x (+ 5 (* 5 (count name))))
+                      :y (+ y 6)
+                      ;; text-anchor doesn't work until react 0.10 but
+                      ;; moving to that breaks a lot of stuff, hence
+                      ;; the gymnastics in reducing x above :(
+                      :text-anchor "middle"
+                      :fill "black"
+                      ;;:stroke "white"
+                      } name]])
 
-        (let [layout (.run (dagre/layout) g)
-              nodes (into {} (for [[name v] (js->clj (.-_nodes layout))
-                               :let [value (get v "value")
-                                     x (get value "x")
-                                     y (get value "y")]]
-                               [name {:x x :y y
-                                      :w (get value "width")
-                                      :h (get value "height")}]))]
+           (for [{:keys [x1 y1 x2 y2 from to]} edges
+                 :let [r 30
+                       b (/ (- y2 y1) 1.0)]]
+             [:g
+              [:path {:onMouseOver (fn [ev] (om/update! data [:selected] (str from "->" to)))
+                      :d (str "M " x1 "," (+ y1 r)
+                              " "
+                              "C " x1 ", " (+ y1 r b)
+                              " "
+                              x2 ", " (- y2 r b)
+                              " "
+                              x2 "," (- y2 r))
+                      :stroke "black"
+                      :stroke-width (if (= (str from "->" to)
+                                           (:selected data))
+                                      "5"
+                                      "2"
+                                      )
+                      :fill "none"}]
 
-          (html
-           [:svg {:width 800 :height 500 :viewBox "-20 -100 1040 700"}
-
-            [:g
-
-             (for [[_ v] (js->clj (.-_edges layout))]
-               (let [{x1 :x y1 :y} (get nodes (get v "u"))
-                     {x2 :x y2 :y} (get nodes (get v "v"))
-                     ]
-                 [:line {:x1 x1 :y1 y1 :x2 x2 :y2 y2 :stroke "black" :stroke-width "3"}]))
-
-             (for [[name {:keys [x y w h]}] nodes]
-               [:g {:onMouseOver (fn [ev] (om/update! data [:selected] name))}
-                [:rect {:x (- x (int (/ w 2)))
-                        :y (- y (int (/ h 2)))
-                        :rx 4 :ry 4
-                        :width w
-                        :height h
+              ;; Triangle
+              #_[:path {:d (str "M " x2 "," (- y2 r 2) " l -7,-15 14,0 z")
+                        :stroke "black"
+                        :stroke-width "2"
                         :fill "white"
-                        :stroke (if (= name (:selected data)) "blue" "black")
-                        :stroke-width (if (= name (:selected data)) 5 2)}]
-                [:text {:x (- x (+ 5 (* 5 (count name))))
-                        :y (+ y 6)
-                        ;; text-anchor doesn't work until react 0.10 but
-                        ;; moving to that breaks a lot of stuff, hence
-                        ;; the gymnastics in reducing x above :(
-                        :text-anchor "middle"} name]])]
+                        :stroke-linejoin "bevel"
+                        }]
+              ;; Positive
+              [:circle {:cx x1 :cy (+ y1 r) :r 7
+                        :fill "red"
+                        :stroke-width "2"
+                        :stroke "black"
+                        }]
+              [:path {:d (str "M " x1 "," (+ y1 r) " l 4,0 -8,0 4,0 0,-4 0,8 0,-4")
 
-            [:text {:x 10 :y 470} (:selected data)]]))))))
+                      :stroke-width "2"
+                      :stroke "white"
+                      }]
+
+              ;; Negative
+              [:circle {:cx x2 :cy (- y2 r) :r 7
+                        :fill "black"
+                        :stroke-width "2"
+                        :stroke "black"
+                        }]
+              [:line {:x1 (- x2 4) :y1 (- y2 r)
+                      :x2 (+ x2 4) :y2 (- y2 r)
+                      :stroke-width "2"
+                      :stroke "white"
+                      }]
+
+              ]
+             )
+
+           ]
+
+          [:text {:x 600 :y 30} (:selected data)]])))))
 
 (defn stefan [data owner]
   (reify
@@ -386,14 +414,13 @@
                        ["B" "F"]
                        ["B" "C"]])]
 
-
         (let [b 60
               g (om/get-state owner :g)]
 
 ;;          (println "b is now " b)
           (html [:svg {:width 800 :height 500}
 
-                 [:rect {:x 0 :y 0 :width 800 :height 500 :fill "#282"}]
+;;                 [:rect {:x 0 :y 0 :width 800 :height 500 :fill "#282"}]
 
                  (for [[name {:keys [x y w h]}] nodes]
                    [:g
@@ -707,6 +734,10 @@
      {:subtitle "The Interceptor pattern"
       :bullets ["A component is wired in-between a dependency and its dependants"
                 "Example: WebRequestHandlerHead"] }
+
+     {:subtitle "The Shared Dependency pattern"
+      :bullets ["Two components share a dependency"
+                "Example: AsyncChannel"] }
 
      ;; btw. about these long names - if we understand that objects are
      ;; units of cohesion of multiple (otherwise disparate) concerns,
