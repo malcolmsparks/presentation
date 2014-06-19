@@ -187,35 +187,6 @@
       {:nodes nodes
        :edges edges})))
 
-(defn dep-tree [data owner {:keys [label]}]
-  (reify
-    om/IRender
-    (render [_]
-      (html
-       [:svg {:width 500 :height 500}
-        [:g {:transform "translate(0,20)"}
-         (cond
-          (= label "Dependency")
-          [:g
-           [:circle {:cx 250 :cy 50 :r 30 :stroke-width "2px" :stroke "black" :fill "white"}]
-           [:path {:d "M 250 80 l 0 130" :stroke-width "5px" :stroke "black"}]
-           [:text {:x 320 :y 60} label]]
-          (= label "Dependencies")
-          [:g
-           (for [i (range 3)]
-             [:g {:transform (str "translate(" (* 150 (dec i)) ",0)")}
-              [:circle {:cx 250 :cy 50 :r 30 :stroke-width "2px" :stroke "black" :fill "white"}]
-              [:path {:d (str "M 250 80 l " (- (* 150 (dec i))) " 130") :stroke-width "5px" :stroke "black"}]
-              ])
-
-           [:text {:x 175 :y 0} "Dependencies"]
-           ]
-          )]
-
-        [:circle {:cx 250 :cy 250 :r 30 :stroke-width "2px" :stroke "black" :fill "white"}]
-        [:text {:x 320 :y 260} "Dependant"]
-        ]))))
-
 (defn protocols [data owner {:keys [label]}]
   (reify
     om/IRender
@@ -260,10 +231,95 @@
            [:path {:d "M 323.13256,172.84893 C 322.82309,173.8564 272.39385,170.86102 269.17723,177.33989 C 266.23489,183.26634 267.2613,224.01874 275.44753,236.55933 C 283.63375,249.09993 300.36974,249.70298 302.6188,235.86264 C 304.88307,221.92866 284.65588,202.55291 294.2584,203.11777 C 297.21938,203.29194 322.82309,203.11777 323.19803,202.73841 C 322.31764,291.82492 297.71799,363.28039 267.58907,363.28039 C 237.85676,363.28039 213.50913,293.69393 211.35119,207.09404 C 211.35119,207.09404 160.92195,210.08942 157.70534,203.61055 C 154.763,197.6841 155.78942,156.9317 163.97563,144.39111 C 172.16185,131.85051 188.89785,131.24746 191.1469,145.0878 C 193.41118,159.02178 173.184,178.39753 182.78652,177.83267 C 185.74749,177.6585 211.35119,178.31011 211.61737,177.83267 C 214.9263,93.16027 238.71929,27.075159 267.58907,27.075159 C 295.99669,27.075159 319.48877,90.599163 323.13256,172.84893 z "
                    :style style}]
 
-           ])
-        ]))))
+           ])]))))
 
-(defn dependency-tree [data owner]
+
+
+(defn dependency-graph-svg [nodes data]
+  (let [{:keys [nodes edges] :as graph} (layout-nodes nodes)]
+    [:svg {:width 1000 :height 700 :viewBox "-20 -20 1000 700" :style {:border "0px solid black"}}
+
+     [:g
+      (for [[name {:keys [x y w h]}] nodes]
+        [:g {:onMouseOver (fn [ev] (om/update! data [:selected] name))}
+         [:rect {:x (- x (int (/ w 2)))
+                 :y (- y (int (/ h 2)))
+                 :rx 4 :ry 4
+                 :width w
+                 :height h
+                 :fill (if (re-matches #"cylon/.*" name)
+                         "#a00"
+                         "#ec3" ; orange
+                         )
+                 :stroke (if (= name (:selected data)) "#444" "black")
+                 :stroke-width (if (= name (:selected data)) 5 2)}]
+         (let [suffix (if (re-matches #"cylon/.*" name) (subs name 6) name)]
+           [:text {:x (- x (+ 5 (* 5 (count suffix))))
+                   :y (+ y 6)
+                   ;; text-anchor doesn't work until react 0.10 but
+                   ;; moving to that breaks a lot of stuff, hence
+                   ;; the gymnastics in reducing x above :(
+                   :text-anchor "middle"
+                   :fill (if (re-matches #"cylon/.*" name)
+                           "white"
+                           "black")
+                   ;;:stroke "white"
+                   } suffix])])
+
+      (for [{:keys [x1 y1 x2 y2 from to]} edges
+            :let [r 30
+                  b (/ (- y2 y1) 1.0)]]
+        [:g
+         [:g {:onMouseOver (fn [ev] (om/update! data [:selected] (str from "->" to)))}
+          (let [selected (= (str from "->" to) (:selected data))
+                d (str "M " x1 "," (+ y1 r)
+                          " "
+                          "C " x1 ", " (+ y1 r b)
+                          " "
+                          x2 ", " (- y2 r b)
+                          " "
+                          x2 "," (- y2 r))]
+            [:g
+             [:path {:d d
+                     :stroke "#000"
+                     :stroke-width (if selected "10" "6")
+                     :fill "none"}]
+             [:path {:d d
+                     :stroke (if selected "#0c0" "#080")
+                     :stroke-width (if selected "8" "4")
+                     :fill "none"}]
+             [:path {:d d
+                     :stroke "#880"
+                     :stroke-width (if selected "3" "2")
+                     :fill "none"}]])]
+
+         ;; Positive
+         [:circle {:cx x1 :cy (+ y1 r) :r 7
+                   :fill "red"
+                   :stroke-width "2"
+                   :stroke "black"
+                   }]
+         [:path {:d (str "M " x1 "," (+ y1 r) " l 4,0 -8,0 4,0 0,-4 0,8 0,-4")
+
+                 :stroke-width "2"
+                 :stroke "white"
+                 }]
+
+         ;; Negative
+         [:circle {:cx x2 :cy (- y2 r) :r 7
+                   :fill "black"
+                   :stroke-width "2"
+                   :stroke "black"
+                   }]
+         [:line {:x1 (- x2 4) :y1 (- y2 r)
+                 :x2 (+ x2 4) :y2 (- y2 r)
+                 :stroke-width "2"
+                 :stroke "white"}]])]
+
+     [:text {:x 600 :y 30} (:selected data)]]))
+
+
+(defn internal-dependency-tree [data owner]
   (reify
     om/IWillMount
     (will-mount [_]
@@ -276,95 +332,95 @@
 
     om/IRender
     (render [_]
-      (let [{:keys [nodes edges]}
-            (layout-nodes
-             (for [[k v] (om/get-state owner [:data])
-                   v v]
-               [(name k) (name (second v))]))]
+      (html
+       (dependency-graph-svg
+        (for [[k v] (om/get-state owner [:data]) v v]
+          [(name k) (name (second v))])
+        data)))))
 
-        (html
-         [:svg {:width 1000 :height 700 :viewBox "-20 -20 1000 700" :style {:border "0px solid black"}}
+(defn parameterized-dependency-tree [data owner {:keys [nodes]}]
+  (reify
+    om/IWillMount
+    (will-mount [_]
+      (src/load-data (:data data) owner))
 
-          [:g
-           (for [[name {:keys [x y w h]}] nodes]
-             [:g {:onMouseOver (fn [ev] (om/update! data [:selected] name))}
-              [:rect {:x (- x (int (/ w 2)))
-                      :y (- y (int (/ h 2)))
-                      :rx 4 :ry 4
-                      :width w
-                      :height h
-                      :fill "#ec3"
-                      :stroke (if (= name (:selected data)) "blue" "black")
-                      :stroke-width (if (= name (:selected data)) 5 2)}]
-              [:text {:x (- x (+ 5 (* 5 (count name))))
-                      :y (+ y 6)
-                      ;; text-anchor doesn't work until react 0.10 but
-                      ;; moving to that breaks a lot of stuff, hence
-                      ;; the gymnastics in reducing x above :(
-                      :text-anchor "middle"
-                      :fill "black"
-                      ;;:stroke "white"
-                      } name]])
+    om/IWillUpdate
+    (will-update [_ np ns]
+      (when (not= data np)
+        (src/load-data (:data np) owner)))
 
-           (for [{:keys [x1 y1 x2 y2 from to]} edges
-                 :let [r 30
-                       b (/ (- y2 y1) 1.0)]]
+    om/IRender
+    (render [_]
+      (html
+       (dependency-graph-svg nodes data)))))
+
+(defn protocols2 [data owner {:keys [label]}]
+  (reify
+    om/IInitState
+    (init-state [this] {:zoom 0})
+    om/IRenderState
+    (render-state [_ state]
+      (println "rendering, zoom" (:zoom state))
+      (html
+       [:div
+        [:button {:onClick (fn [_]
+                             (go-loop [zoom (:zoom state)]
+                               (let [new-zoom (+ zoom 0.15)]
+                                 (om/set-state! owner :zoom (min new-zoom 1))
+                                 (when (< new-zoom 1)
+                                   (<! (timeout 500))
+                                   (recur new-zoom))))
+                             (om/set-state! owner :zoom 1))}
+         "zoom in"]
+        [:button {:onClick (fn [_]
+                             (go-loop [zoom (:zoom state)]
+                               (let [new-zoom (- zoom 0.15)]
+                                 (om/set-state! owner :zoom (max new-zoom 0))
+                                 (when (> new-zoom 0)
+                                   (<! (timeout 500))
+                                   (recur new-zoom))))
+                             (om/set-state! owner :zoom 0))}
+         "zoom out"]
+        [:svg {:width 800 :height 500}
+         [:g {:transform (str "rotate(" (* 180 (:zoom state)) ",400,250)")}
+          [:g {:transform "translate(100,300)"}
+           [:rect {:width 600 :height 200
+                   :fill "#ec3"
+                   :stroke "black"
+                   :stroke-width 6}]
+           [:text {:x 30 :y 60 :style {:font-size "32pt"}} "Dependency"]
+
+
+           (let [p-dist 60]
              [:g
-              [:path {:onMouseOver (fn [ev] (om/update! data [:selected] (str from "->" to)))
-                      :d (str "M " x1 "," (+ y1 r)
-                              " "
-                              "C " x1 ", " (+ y1 r b)
-                              " "
-                              x2 ", " (- y2 r b)
-                              " "
-                              x2 "," (- y2 r))
-                      :stroke "black"
-                      :stroke-width (if (= (str from "->" to)
-                                           (:selected data))
-                                      "5"
-                                      "2"
-                                      )
-                      :fill "none"}]
+              (let [x 120]
+                [:g {:transform (str "translate(" x "," (- p-dist) ")")}
+                 [:g {:transform (str "rotate(180) translate(" (- x) ",0)")}
+                  [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
+                  [:rect {:width 240 :height 60
+                          :fill "#ec3"
+                          :stroke "black"
+                          :stroke-width 4}]
+                  [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Lifecycle"]]])
 
-              ;; Triangle
-              #_[:path {:d (str "M " x2 "," (- y2 r 2) " l -7,-15 14,0 z")
-                        :stroke "black"
-                        :stroke-width "2"
-                        :fill "white"
-                        :stroke-linejoin "bevel"
-                        }]
-              ;; Positive
-              [:circle {:cx x1 :cy (+ y1 r) :r 7
-                        :fill "red"
-                        :stroke-width "2"
-                        :stroke "black"
-                        }]
-              [:path {:d (str "M " x1 "," (+ y1 r) " l 4,0 -8,0 4,0 0,-4 0,8 0,-4")
+              (let [x 380]
+                [:g {:transform (str "translate(" x "," (- p-dist) ")")}
+                 [:g {:transform (str "rotate(180) translate(" (- 120) ",0)")}
+                  [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
+                  [:rect {:width 240 :height 60
+                          :fill "#ec3"
+                          :stroke "black"
+                          :stroke-width 4}]
+                  [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Website"]]])
 
-                      :stroke-width "2"
-                      :stroke "white"
-                      }]
+              ])]]
 
-              ;; Negative
-              [:circle {:cx x2 :cy (- y2 r) :r 7
-                        :fill "black"
-                        :stroke-width "2"
-                        :stroke "black"
-                        }]
-              [:line {:x1 (- x2 4) :y1 (- y2 r)
-                      :x2 (+ x2 4) :y2 (- y2 r)
-                      :stroke-width "2"
-                      :stroke "white"
-                      }]
 
-              ]
-             )
 
-           ]
 
-          [:text {:x 600 :y 30} (:selected data)]])))))
+         ]]))))
 
-(defn stefan [data owner]
+(defn stefan [data owner {:keys [labels]}]
   (reify
     om/IRender
     (render [_]
@@ -376,11 +432,15 @@
 
         (for [[i module] [[0 "A"] [200 "B"] [400 "C"]]]
           [:g {:transform (str "translate(" i ",0)")}
-           [:rect {:x 30 :y 0 :width 150 :height 500 :fill "rgba(0,255,0,0.6)" :stroke-width 2 :stroke "black" :opacity ".8"}]
+           [:rect {:x 30 :y 0 :width 150 :height 500 :fill "rgba(0,255,0,0.6)" :stroke-width 2 :stroke "none" :opacity ".8"}]
            [:text {:x 40 :y 30} (str "Module " module)]])
 
         [:circle {:cx 100 :cy 100 :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
+        [:text {:x 110 :y 100} (first labels)]
+
         [:circle {:cx 500 :cy 400 :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
+        [:text {:x 510 :y 400} (second labels)]
+
         [:line {:x1 100 :y1 100 :x2 500 :y2 400 :stroke-width 2 :stroke "black"}]
 
         ])))
@@ -549,6 +609,11 @@
               (for [b bullets]
                 [:li b])])
 
+           (when-let [bullets (:nbullets data)]
+             [:ol {:style {:font-size "42pt"}}
+              (for [b bullets]
+                [:li b])])
+
            (when-let [text (:text data)]
              [:p text])
 
@@ -629,49 +694,132 @@
       :email "malcolm@juxt.pro"
       :twitter "@malcolmsparks"}
 
-;; Background - searching for a meta-architecture that can be re-used
-;; between projects. We are a Clojure company, we have are facing the
-;; challenge of having lots of engineers working on lots of
-;; projects. How do we find consistency
+     ;; Background - searching for a meta-architecture that can be re-used
+     ;; between projects. We are a Clojure company, we have are facing the
+     ;; challenge of having lots of engineers working on lots of
+     ;; projects. How do we find consistency
 
-     {:subtitle "Introduction"
+     {:subtitle "Basis"
+      :bullets ["Stuart Sierra component library" ; replace with github project
+                "+ pre-built components"]}
+
+     {:image "/images/modular.png"}
+
+     {:subtitle "modular"
+      :bullets ["bidi router"
+                "http-kit"
+                "mustache templating"
+                "clojurescript builder"
+                "cassandra"
+                "datomic"
+                "netty"
+                "mqtt"
+                "core.async"]}
+
+     {:image "/images/cylon.png"}
+
+     {:subtitle "cylon"
+      :bullets ["login form"
+                "session store"
+                "user domain"
+                "password hash algos"
+                "authenticator"
+                "authorization"
+                ]}
+
+     {:subtitle "Presumption 1"
       :bullets ["Libraries are great"
                 "Systems are complex"
-                "Let's make our systems easy"
-                "to reason about"]}
-     ;; Is this a Haiku
+                "Let's make our systems easy to reason about"]}
+     ;; (Is this a Haiku?)
 
-     {:subtitle "Modularity"
-      :custom dep-tree
-      :opts {:label "Dependency"}}
+     {:subtitle "Presumption 2"
+      :bullets ["A meta-architecture, that can scale to hundreds of
+                diverse projects, is useful (consistency, re-use, etc.)"
+                ]}
 
-     {:subtitle "Modularity"
-      :custom dep-tree
-      :opts {:label "Dependencies"}}
+     {:subtitle "Agenda"
+      :bullets ["Architecture"
+                "Example"
+                "Patterns"
+                "Security"
+                "Demo"]}
 
-     {:subtitle "System manifest"}
+     {:title "1. Architecture"
+      ;; We don't talk about architecture much in the Clojure community.
+      ;; But I think Clojure systems need architecture just as much as other systems.
+      ;; Sure, our systems are smaller, and we can survive for longer without it, but eventually Clojure systems need it.
+      }
+
+     ;; Insert a slide here with a big red cross over Spring, Guice, J2EE, UML
+     ;; We aren't going to inherit existing architectural practices, dependency injection frameworks, from our host platforms.
+
+     {:subtitle "Architecture"
+      ;; We are going to start over, embrace minimalism and add only the concepts that we think are absolutely necessary. My minimal list is this: Components, Dependencies and Protocols
+      :bullets ["Components"
+                "Dependencies"
+                "Protocols"]}
+
+     {:subtitle "Components"
+      :bullets ["Goal: When we want to make a change to the system, we make a change to a single component"
+                "Units of cohesion (hold that thought, example coming up)"]}
+
      ;; Show a snippet of the system
 
-     {:subtitle "Explicit wiring"
+     {:subtitle "Dependencies"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["Dependant" "Dependency"]]}
+      }
+
+     {:subtitle "Dependencies"
       :data {:uri "/dependencies"
              :font-size "14pt"
              :mime-type "text/plain"}}
 
      ;; Show the dependency graph
-     {:subtitle "Explicit wiring"
+     {:subtitle "Dependencies"
       :data {:uri "/dependencies"
              :font-size "14pt"
              :mime-type "application/edn"}
-      :custom dependency-tree}
+      :custom internal-dependency-tree}
 
      {:subtitle "Protocols"
-      :custom protocols
+      :bullets ["Provide an integration surface for component coupling
+      between a dependant and a dependency"] }
+
+     {:subtitle "Protocols"
+      :custom protocols2
       }
 
-     {:subtitle "Example protocol"
-      :bullets ["WebService" "Defines routes" "Defines handlers"]}
+     ;; First section over
 
-     {:subtitle "Routes as data"
+     ;; --------------------------------------------------------------------------------
+
+     ;; Next section builds up to the conclusion that objects are 'units of cohesion'
+
+
+
+     #_{:subtitle "Measuring architecture"
+      :bullets ["For a given business change, how many different areas
+      of the code must I modify?"
+                ]}
+
+     #_{:subtitle "Implicit coupling between modules"
+      :custom stefan
+      :opts {:labels ["Original code" "Copied code"]}
+      }
+
+     #_{:subtitle "Implicit coupling between modules"
+      :custom stefan
+      :opts {:labels ["URI formation" "URI dispatch"]}
+      }
+
+     #_{:blockquote "The string is a stark data structure and everywhere it is passed there is much duplication of process. It is a perfect vehicle for hiding information. "
+      }
+
+     #_{:image "/images/bidi.png"}
+
+     #_{:subtitle "Routes as data"
       :code {:file "/home/malcolm/Dropbox/src/presentation/src/presentation/website.clj"
              :lang :clojure
              :from "(routes"
@@ -679,29 +827,12 @@
              :inclusive true
              }}
 
-     {:subtitle "Bidi" ; show github logo in ztellman style
-      :bullets ["Bidirectional routing"]
-      }
 
-     {:image "/images/bidi.png"}
+     {:title "Example"}
 
-     {:subtitle "Implicit coupling"
-      :custom stefan
-      }
-
-     {:blockquote "The string is a stark data structure and everywhere it is passed there is much duplication of process. It is a perfect vehicle for hiding information. "
-      }
-
-     {:subtitle "An example component: juxt.modular/cljs-builder"}
-
-     {:subtitle "ClojureScript Builder"
-      :data {:uri "/dependencies"
-             :font-size "14pt"
-             :mime-type "application/edn"}
-      :custom dependency-tree}
-
-     ;;{:title "Code"}
-     ;;{:background "/images/bus2.jpg"}
+     {:subtitle "Example: juxt.modular/cljs-builder"
+      :bullets ["Compile cljs on reset"
+                "Wraps Thomas Heller's shadow-build"]}
 
      {:subtitle "Constructor schema"
       :code {:source "modular.cljs/new-cljs-builder-schema" :lang :clojure}}
@@ -724,7 +855,7 @@
              :to "{{{cljs}}}"
              }}
 
-     {:title "Modularity Patterns"}
+     {:title "2. Patterns"}
 
      {:subtitle "The Index pattern"
       :bullets ["A component discovers and depends on all other
@@ -746,7 +877,11 @@
      ;; whole. They are lightweight: these constructions are not baked
      ;; into the language or architecture.
 
-     {:title "Security"}
+     ;; --------------------------------------------------------------------------------
+
+     {:title "3. Security"}
+
+     ;; TODO: Add a spectrum
 
      {:subtitle "The security challenge"
       :bullets ["Tried-and-tested security by default"
@@ -759,31 +894,74 @@
 
      ;; build up a diagram
 
-     {:subtitle "Login Form"}
+     {:subtitle "Website"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["router" "website-A"]
+                     ["router" "website-B"]]}}
 
-     {:subtitle "User Domain"}
+     {:subtitle "Login Form"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["router" "cylon/login-form"]
+                     ["router" "website-A"]
+                     ["router" "website-B"]]}}
 
-     {:subtitle "Session Store"}
+     {:subtitle "User Domain"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["router" "cylon/login-form"]
+                     ["router" "website-A"]
+                     ["router" "website-B"]
+                     ["cylon/login-form" "cylon/user-domain"]]}}
 
-     {:subtitle "Authenticator"}
+     {:subtitle "User Domain"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["router" "cylon/login-form"]
+                     ["router" "website-A"]
+                     ["router" "website-B"]
+                     ["cylon/login-form" "cylon/user-domain"]
+                     ["cylon/user-domain" "cylon/password-algo"]
+                     ["cylon/user-domain" "cylon/user-store"]]}}
 
-     {:subtitle "Authorizer"}
+     {:subtitle "Session Store"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["router" "cylon/login-form"]
+                     ["router" "website-A"]
+                     ["router" "website-B"]
+                     ["cylon/login-form" "cylon/user-domain"]
+                     ["cylon/login-form" "cylon/session-store"]
+                     ["cylon/user-domain" "cylon/password-algo"]
+                     ["cylon/user-domain" "cylon/user-store"]
+                     ]}}
 
-     {:image "/images/cylon.png"}
+     {:subtitle "Authenticator"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["cylon/authenticator" "cylon/session-store"]
+                     ["router" "cylon/login-form"]
+                     ["router" "cylon/authenticator"]
+                     ["cylon/authenticator" "website-A"]
+                     ["router" "website-B"]
+                     ["cylon/login-form" "cylon/user-domain"]
+                     ["cylon/login-form" "cylon/session-store"]
+                     ["cylon/user-domain" "cylon/password-algo"]
+                     ["cylon/user-domain" "cylon/user-store"]
+                     ]}}
 
-     {:subtitle "Cylon"
-      :bullets ["Protocol definitions for security concepts"
-                "Reference implementations"]}
-
-     {:image "/images/modular.png"}
-
-
-
-     {:title "lein new modular myproject"}
+     {:subtitle "CSRF protection"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["ring-head" "router"]
+                     ["ring-head" "cylon/anti-forgery"]
+                     ["cylon/authenticator" "cylon/session-store"]
+                     ["router" "cylon/login-form"]
+                     ["router" "cylon/authenticator"]
+                     ["cylon/authenticator" "website"]
+                     ["cylon/login-form" "cylon/user-domain"]
+                     ["cylon/login-form" "cylon/session-store"]
+                     ["cylon/user-domain" "cylon/password-algo"]
+                     ["cylon/user-domain" "cylon/user-store"]
+                     ]}}
 
      {:title "modularity.org"}
 
-     {:subtitle "TEST"
+     #_{:subtitle "TEST"
       :custom test-graph}
 
      ]}))

@@ -12,7 +12,8 @@
                         :padding 0
                         :margin 0
                         :background "#ffffff"
-                        :overflow :hidden
+                        ;; This overflow controls the right hand margin - we can enable it once our presentation is done
+                        ;;:overflow :hidden
                         }]
           [:.deck-container
            {:position :relative
