@@ -254,7 +254,7 @@
                  :stroke (if (= name (:selected data)) "#444" "black")
                  :stroke-width (if (= name (:selected data)) 5 2)}]
          (let [suffix (if (re-matches #"cylon/.*" name) (subs name 6) name)]
-           [:text {:x (- x (+ 5 (* 5 (count suffix))))
+           [:text {:x x ;(- x (+ 5 (* 5 (count suffix))))
                    :y (+ y 6)
                    ;; text-anchor doesn't work until react 0.10 but
                    ;; moving to that breaks a lot of stuff, hence
@@ -354,7 +354,7 @@
       (html
        (dependency-graph-svg nodes data)))))
 
-(defn protocols2 [data owner {:keys [label]}]
+#_(defn protocols2 [data owner {:keys [label]}]
   (reify
     om/IInitState
     (init-state [this] {:zoom 0})
@@ -419,6 +419,53 @@
 
 
          ]]))))
+
+
+(defn protocols3 [data owner {:keys [label]}]
+  (reify
+    om/IRenderState
+    (render-state [_ state]
+      (html
+       [:svg {:width 800 :height 500}
+        [:g #_{:transform (str "rotate(170,400,250)")
+
+             }
+
+         [:animate-transform {:type "rotate"
+                             :attribute-name "transform"
+                             :from "0"
+                             :to "180"
+                             }]
+         [:g {:transform "translate(100,300)"}
+          [:rect {:width 600 :height 200
+                  :fill "#ec3"
+                  :stroke "black"
+                  :stroke-width 6}]
+          [:text {:x 30 :y 60 :style {:font-size "32pt"}} "Dependency"]
+
+          (let [p-dist 60]
+            [:g
+             (let [x 120]
+               [:g {:transform (str "translate(" x "," (- p-dist) ")")}
+                [:g {:transform (str "rotate(180) translate(" (- x) ",0)")}
+                 [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
+                 [:rect {:width 240 :height 60
+                         :fill "#ec3"
+                         :stroke "black"
+                         :stroke-width 4}]
+                 [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Lifecycle"]]])
+
+             (let [x 380]
+               [:g {:transform (str "translate(" x "," (- p-dist) ")")}
+                [:g {:transform (str "rotate(180) translate(" (- 120) ",0)")}
+                 [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
+                 [:rect {:width 240 :height 60
+                         :fill "#ec3"
+                         :stroke "black"
+                         :stroke-width 4}]
+                 [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Website"]]])
+
+             ])]]]))))
 
 (defn stefan [data owner {:keys [labels]}]
   (reify
@@ -788,7 +835,7 @@
       between a dependant and a dependency"] }
 
      {:subtitle "Protocols"
-      :custom protocols2
+      :custom protocols3
       }
 
      ;; First section over
@@ -960,6 +1007,7 @@
                      ]}}
 
      {:title "modularity.org"}
+     {:title "Google group: modularity"}
 
      #_{:subtitle "TEST"
       :custom test-graph}

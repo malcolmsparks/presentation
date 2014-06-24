@@ -14,7 +14,7 @@
    [org.clojure/clojurescript "0.0-2202"]
    ;;[org.clojure/clojurescript "0.0-2173"]
    ;;[org.clojure/clojurescript "0.0-2138"]
-   [om "0.6.2"]
+   [om "0.6.4"]
    [sablono "0.2.6" :exclusions [com.facebook/react]]
    [ankha "0.1.1"]
 
@@ -70,13 +70,13 @@
                                   [prismatic/schema "0.2.1"]
                                   [prismatic/plumbing "0.2.2"]]
                    :source-paths ["dev"
-                                  "/home/malcolm/src/cylon/src"
-                                  "/home/malcolm/src/modular/modules/http-kit/src"
-                                  "/home/malcolm/src/modular/modules/bidi/src"
-                                  "/home/malcolm/src/modular/modules/ring/src"
-                                  "/home/malcolm/src/modular/modules/template/src"
-                                  "/home/malcolm/src/modular/modules/web-template/src"
-                                  "/home/malcolm/src/modular/modules/maker/src"
-                                  "/home/malcolm/src/modular/modules/wire-up/src"
-                                  "/home/malcolm/src/modular/modules/cljs/src"]
+                                  #=(eval (str (System/getProperty "user.home") "/src/cylon/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/http-kit/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/bidi/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/ring/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/template/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/web-template/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/maker/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/wire-up/src"))
+                                  #=(eval (str (System/getProperty "user.home") "/src/modular/modules/cljs/src"))]
                    :resource-paths ["test/resources"]}})

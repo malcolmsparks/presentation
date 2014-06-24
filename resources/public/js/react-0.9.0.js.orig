@@ -1911,9 +1911,7 @@ var DefaultDOMPropertyConfig = {
     x: MUST_USE_ATTRIBUTE,
     y1: MUST_USE_ATTRIBUTE,
     y2: MUST_USE_ATTRIBUTE,
-    y: MUST_USE_ATTRIBUTE,
-
-    textAnchor: MUST_USE_ATTRIBUTE
+    y: MUST_USE_ATTRIBUTE
   },
   DOMAttributeNames: {
     className: 'class',
@@ -1925,9 +1923,7 @@ var DefaultDOMPropertyConfig = {
     stopOpacity: 'stop-opacity',
     strokeLinecap: 'stroke-linecap',
     strokeWidth: 'stroke-width',
-    viewBox: 'viewBox',
-
-    textAnchor: 'text-anchor'
+    viewBox: 'viewBox'
   },
   DOMPropertyNames: {
     autoCapitalize: 'autocapitalize',
