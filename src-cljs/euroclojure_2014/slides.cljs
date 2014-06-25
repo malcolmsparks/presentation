@@ -247,13 +247,17 @@
                  :rx 4 :ry 4
                  :width w
                  :height h
-                 :fill (if (re-matches #"cylon/.*" name)
-                         "#a00"
-                         "#ec3" ; orange
+                 :fill (cond
+                        (re-matches #"cylon/.*" name) "#a00"
+                        (re-matches #"xively/.*" name) "#0a0"
+                         :otherwise "#ec3" ; orange
                          )
                  :stroke (if (= name (:selected data)) "#444" "black")
                  :stroke-width (if (= name (:selected data)) 5 2)}]
-         (let [suffix (if (re-matches #"cylon/.*" name) (subs name 6) name)]
+         (let [suffix (cond
+                       (re-matches #"cylon/.*" name) (subs name 6)
+                       (re-matches #"xively/.*" name) (subs name 7)
+                       :otherwise name)]
            [:text {:x x ;(- x (+ 5 (* 5 (count suffix))))
                    :y (+ y 6)
                    ;; text-anchor doesn't work until react 0.10 but
@@ -300,7 +304,6 @@
                    :stroke "black"
                    }]
          [:path {:d (str "M " x1 "," (+ y1 r) " l 4,0 -8,0 4,0 0,-4 0,8 0,-4")
-
                  :stroke-width "2"
                  :stroke "white"
                  }]
@@ -354,118 +357,114 @@
       (html
        (dependency-graph-svg nodes data)))))
 
-#_(defn protocols2 [data owner {:keys [label]}]
+(defn protocols2 [data owner {:keys [label rotate?]}]
   (reify
     om/IInitState
-    (init-state [this] {:zoom 0})
+    (init-state [this] {:zoom 0 :protocol nil})
     om/IRenderState
     (render-state [_ state]
-      (println "rendering, zoom" (:zoom state))
       (html
        [:div
-        [:button {:onClick (fn [_]
-                             (go-loop [zoom (:zoom state)]
-                               (let [new-zoom (+ zoom 0.15)]
-                                 (om/set-state! owner :zoom (min new-zoom 1))
-                                 (when (< new-zoom 1)
-                                   (<! (timeout 500))
-                                   (recur new-zoom))))
-                             (om/set-state! owner :zoom 1))}
-         "zoom in"]
-        [:button {:onClick (fn [_]
-                             (go-loop [zoom (:zoom state)]
-                               (let [new-zoom (- zoom 0.15)]
-                                 (om/set-state! owner :zoom (max new-zoom 0))
-                                 (when (> new-zoom 0)
-                                   (<! (timeout 500))
-                                   (recur new-zoom))))
-                             (om/set-state! owner :zoom 0))}
-         "zoom out"]
-        [:svg {:width 800 :height 500}
-         [:g {:transform (str "rotate(" (* 180 (:zoom state)) ",400,250)")}
-          [:g {:transform "translate(100,300)"}
-           [:rect {:width 600 :height 200
-                   :fill "#ec3"
-                   :stroke "black"
-                   :stroke-width 6}]
-           [:text {:x 30 :y 60 :style {:font-size "32pt"}} "Dependency"]
+        #_[:button {:onClick (fn [_]
+                               (go-loop [zoom (:zoom state)]
+                                 (let [new-zoom (+ zoom 0.15)]
+                                   (om/set-state! owner :zoom (min new-zoom 1))
+                                   (when (< new-zoom 1)
+                                     (<! (timeout 500))
+                                     (recur new-zoom))))
+                               (om/set-state! owner :zoom 1))}
+           "zoom in"]
+        #_[:button {:onClick (fn [_]
+                               (go-loop [zoom (:zoom state)]
+                                 (let [new-zoom (- zoom 0.15)]
+                                   (om/set-state! owner :zoom (max new-zoom 0))
+                                   (when (> new-zoom 0)
+                                     (<! (timeout 500))
+                                     (recur new-zoom))))
+                               (om/set-state! owner :zoom 0))}
+           "zoom out"]
+        (let [sf (if rotate? 1.2 0.7)]
+          [:svg {:width 900 :height 600}
+           [:g {:transform (str "scale(" sf "," sf ") rotate(" (* 180 (if rotate? 1 0)) ",400,250)")}
+
+            [:g {:transform "translate(100,-100)"}
+             [:rect {:width 600 :height 200
+                     :fill "#ec3"
+                     :stroke "black"
+                     :stroke-width 6}]
+             [:text {:x 30 :y 160 :style {:font-size "32pt"}} "Dependant"]
 
 
-           (let [p-dist 60]
-             [:g
-              (let [x 120]
-                [:g {:transform (str "translate(" x "," (- p-dist) ")")}
-                 [:g {:transform (str "rotate(180) translate(" (- x) ",0)")}
-                  [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
-                  [:rect {:width 240 :height 60
-                          :fill "#ec3"
-                          :stroke "black"
-                          :stroke-width 4}]
-                  [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Lifecycle"]]])
+             ]
 
-              (let [x 380]
-                [:g {:transform (str "translate(" x "," (- p-dist) ")")}
-                 [:g {:transform (str "rotate(180) translate(" (- 120) ",0)")}
-                  [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
-                  [:rect {:width 240 :height 60
-                          :fill "#ec3"
-                          :stroke "black"
-                          :stroke-width 4}]
-                  [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Website"]]])
+            [:g {:transform "translate(100,300)"}
+             [:rect {:width 600 :height 200
+                     :fill "#ec3"
+                     :stroke "black"
+                     :stroke-width 6}]
+             [:text {:x 30 :y 60 :style {:font-size "32pt"}} "Dependency"]
 
-              ])]]
+             (let [p-dist 30]
+               [:g
+                (let [x 120]
+                  [:g {:transform (str "translate(" x "," (- p-dist) ")")}
+                   [:g {:transform (str "rotate(180) translate(" (- x) ",0)")
+                        :onMouseOver (fn [e]
+                                       (println "Mouse over protocol!")
+                                       (om/set-state! owner :protocol :lifecycle))}
+                    [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
+                    [:rect {:width 240 :height 60
+                            :fill "#ec3"
+                            :stroke "black"
+                            :stroke-width 4}]
+                    [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Lifecycle"]
+                    (when (= :lifecycle (om/get-state owner :protocol))
+                      [:g
+                       [:text {:x 0 :y 90 :style {:font-size "18pt"}} "(start [this])"]
+                       [:text {:x 0 :y 120 :style {:font-size "18pt"}} "(stop [this])"]])]])
 
+                (let [x 380]
+                  [:g {:transform (str "translate(" x "," (- p-dist) ")")}
+                   [:g {:transform (str "rotate(180) translate(" (- 120) ",0)")
+                        :onMouseOver (fn [e]
+                                       (println "Mouse over webservice!")
+                                       (om/set-state! owner :protocol :webservice))}
 
+                    [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
+                    [:rect {:width 240 :height 60
+                            :fill "#ec3"
+                            :stroke "black"
+                            :stroke-width 4}]
+                    [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Website"]
+                    (when (= :webservice (om/get-state owner :protocol))
+                      [:g
+                       [:text {:x 0 :y 90 :style {:font-size "18pt"}} "(request-handlers [this] {:foo (fn [req]…)})"]
+                       [:text {:x 0 :y 120 :style {:font-size "18pt"}} "(routes [this] [\"/foo\" :foo])"]
+                       [:text {:x 0 :y 150 :style {:font-size "18pt"}} "(uri-context [this] \"/app\")"]])]])
 
+                ])]
 
-         ]]))))
+            [:g {:transform "translate(100,-100)"}
+             [:line {:x1 540 :y1 150 :x2 540 :y2 440 :stroke-width "8" :stroke "black"}]
+             [:circle {:cx 540 :cy 150 :r 15
+                       :fill "red"
+                       :stroke-width "4"
+                       :stroke "black"
+                       }]
+             [:path {:d (str "M " 540 "," 150 " l 8,0 -16,0 8,0 0,-8 0,16 0,-8")
+                     :stroke-width "4"
+                     :stroke "white"
+                     }]
 
-
-(defn protocols3 [data owner {:keys [label]}]
-  (reify
-    om/IRenderState
-    (render-state [_ state]
-      (html
-       [:svg {:width 800 :height 500}
-        [:g #_{:transform (str "rotate(170,400,250)")
-
-             }
-
-         [:animate-transform {:type "rotate"
-                             :attribute-name "transform"
-                             :from "0"
-                             :to "180"
-                             }]
-         [:g {:transform "translate(100,300)"}
-          [:rect {:width 600 :height 200
-                  :fill "#ec3"
-                  :stroke "black"
-                  :stroke-width 6}]
-          [:text {:x 30 :y 60 :style {:font-size "32pt"}} "Dependency"]
-
-          (let [p-dist 60]
-            [:g
-             (let [x 120]
-               [:g {:transform (str "translate(" x "," (- p-dist) ")")}
-                [:g {:transform (str "rotate(180) translate(" (- x) ",0)")}
-                 [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
-                 [:rect {:width 240 :height 60
-                         :fill "#ec3"
-                         :stroke "black"
-                         :stroke-width 4}]
-                 [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Lifecycle"]]])
-
-             (let [x 380]
-               [:g {:transform (str "translate(" x "," (- p-dist) ")")}
-                [:g {:transform (str "rotate(180) translate(" (- 120) ",0)")}
-                 [:line {:x1 120 :y1 0 :x2 120 :y2 (- p-dist) :stroke-width 5 :stroke "red"}]
-                 [:rect {:width 240 :height 60
-                         :fill "#ec3"
-                         :stroke "black"
-                         :stroke-width 4}]
-                 [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Website"]]])
-
-             ])]]]))))
+             [:circle {:cx 540 :cy 440 :r 15
+                       :fill "black"
+                       :stroke-width "4"
+                       :stroke "black"
+                       }]
+             [:path {:d (str "M " 540 "," 440 " l 8,0 -16,0 8,0")
+                     :stroke-width "4"
+                     :stroke "white"
+                     }]]]])]))))
 
 (defn stefan [data owner {:keys [labels]}]
   (reify
@@ -473,20 +472,21 @@
     (render [_]
       (html
        [:svg {:width 800 :height 500}
-        [:rect {:x 0 :y 50 :width 800 :height 100 :fill "lightblue"}]
-        [:rect {:x 0 :y 200 :width 800 :height 100 :fill "lightblue"}]
-        [:rect {:x 0 :y 350 :width 800 :height 100 :fill "lightblue"}]
+        (for [[y label] [[50 "Layer 1"] [200 "Layer 2"] [350 "Layer 3"]]]
+          [:g
+           [:rect {:x 0 :y y :width 800 :height 100 :fill "#88f"}]
+           [:text {:x 700 :y (+ 50 y)} label]])
 
         (for [[i module] [[0 "A"] [200 "B"] [400 "C"]]]
           [:g {:transform (str "translate(" i ",0)")}
-           [:rect {:x 30 :y 0 :width 150 :height 500 :fill "rgba(0,255,0,0.6)" :stroke-width 2 :stroke "none" :opacity ".8"}]
-           [:text {:x 40 :y 30} (str "Module " module)]])
+           [:rect {:x 30 :y 0 :width 150 :height 500 :fill "rgba(240,192,48,0.6)" :stroke-width 2 :stroke "none" :opacity ".8"}]
+           [:text {:x 40 :y 30} (str "Feature " module)]])
 
         [:circle {:cx 100 :cy 100 :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
-        [:text {:x 110 :y 100} (first labels)]
+        [:text {:x 120 :y 100} (first labels)]
 
         [:circle {:cx 500 :cy 400 :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
-        [:text {:x 510 :y 400} (second labels)]
+        [:text {:x 520 :y 400} (second labels)]
 
         [:line {:x1 100 :y1 100 :x2 500 :y2 400 :stroke-width 2 :stroke "black"}]
 
@@ -616,8 +616,8 @@
              [:div {:style {;;:float "right"
                             ;;:transform "rotate(2deg)"
                             ;;:-webkit-transform "rotate(2deg)"
-                            :margin-top "15%"
-                            :margin-bottom "15%"
+                            ;;:margin-top "15%"
+                            ;;:margin-bottom "15%"
                             }}
               [:img {:src image :style {:padding "70px"}}]])
 
@@ -741,6 +741,10 @@
       :email "malcolm@juxt.pro"
       :twitter "@malcolmsparks"}
 
+     ;; This is a talk about some of the new things I've been working on
+     ;; this year. What I'm presenting here is definitely a
+     ;; work-in-progress, not complete and not ready for serious use.
+
      ;; Background - searching for a meta-architecture that can be re-used
      ;; between projects. We are a Clojure company, we have are facing the
      ;; challenge of having lots of engineers working on lots of
@@ -778,7 +782,8 @@
       :bullets ["Libraries are great"
                 "Systems are complex"
                 "Let's make our systems easy to reason about"]}
-     ;; (Is this a Haiku?)
+
+     ;; (was that a Haiku?)
 
      {:subtitle "Presumption 2"
       :bullets ["A meta-architecture, that can scale to hundreds of
@@ -787,7 +792,7 @@
 
      {:subtitle "Agenda"
       :bullets ["Architecture"
-                "Example"
+                "A component example"
                 "Patterns"
                 "Security"
                 "Demo"]}
@@ -808,14 +813,31 @@
                 "Protocols"]}
 
      {:subtitle "Components"
+
+      ;; Components are at the heart of this architecture - systems are
+      ;; often too big to understand. What has always attracted me
+      ;; towards components is the desire to understand how things work
+      ;; - but I'm not good with complexity - I'd like to be able to
+      ;; understand systems piece-by-piece. I also think that this
+      ;; approach offers opportunities to evolve systems by replacing
+      ;; parts over time, rather than replacing entire systems in one
+      ;; go.
+
       :bullets ["Goal: When we want to make a change to the system, we make a change to a single component"
                 "Units of cohesion (hold that thought, example coming up)"]}
 
-     ;; Show a snippet of the system
+     ;; TODO Show a snippet of the system
 
      {:subtitle "Dependencies"
       :custom parameterized-dependency-tree
       :opts {:nodes [["Dependant" "Dependency"]]}
+      }
+
+     {:subtitle "Dependencies"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["server" "netty-handler"]
+                     ["server" "xively/mqtt-encoder"]
+                     ["server" "xively/mqtt-decoder"]]}
       }
 
      {:subtitle "Dependencies"
@@ -834,17 +856,50 @@
       :bullets ["Provide an integration surface for component coupling
       between a dependant and a dependency"] }
 
+     {:background "/images/bayonet.jpg"}
+
+     {:subtitle "Bayonet fitting"
+      :image "/images/bayonet-fitting-old.jpg"}
+
+     {:image "/images/bayonet-fitting-new.jpg"}
+
+     {:image "/images/bulb1.jpg"}
+
+     {:image "/images/bulb2.jpg"}
+
+
      {:subtitle "Protocols"
-      :custom protocols3
+      :custom protocols2
+      :opts {:rotate? false}
       }
+
+     {:subtitle "Protocols"
+      :custom protocols2
+      :opts {:rotate? true}
+      }
+
+     {:subtitle "Hidden couplings"
+      :custom stefan
+      :opts {:labels ["Original code" "Copied code"]}
+      }
+
+     {:subtitle "Hidden couplings"
+      :custom stefan
+      :opts {:labels ["URI formation" "URI dispatch"]}
+      }
+
+     {:image "/images/bidi.png"
+      :text "Dispatch and forge URIs from the same route data"}
+
+     ;; We are going to introduce bidi here, by explaining the WebService protocol in detail here
+
+     ;; DRY section here?
 
      ;; First section over
 
      ;; --------------------------------------------------------------------------------
 
      ;; Next section builds up to the conclusion that objects are 'units of cohesion'
-
-
 
      #_{:subtitle "Measuring architecture"
       :bullets ["For a given business change, how many different areas
@@ -853,18 +908,18 @@
 
      #_{:subtitle "Implicit coupling between modules"
       :custom stefan
-      :opts {:labels ["Original code" "Copied code"]}
+        :opts {:labels ["Original code" "Copied code"]}
       }
 
      #_{:subtitle "Implicit coupling between modules"
       :custom stefan
-      :opts {:labels ["URI formation" "URI dispatch"]}
+        :opts {:labels ["URI formation" "URI dispatch"]}
       }
 
      #_{:blockquote "The string is a stark data structure and everywhere it is passed there is much duplication of process. It is a perfect vehicle for hiding information. "
       }
 
-     #_{:image "/images/bidi.png"}
+
 
      #_{:subtitle "Routes as data"
       :code {:file "/home/malcolm/Dropbox/src/presentation/src/presentation/website.clj"
@@ -1008,6 +1063,8 @@
 
      {:title "modularity.org"}
      {:title "Google group: modularity"}
+
+     {:title "Q & A"}
 
      #_{:subtitle "TEST"
       :custom test-graph}

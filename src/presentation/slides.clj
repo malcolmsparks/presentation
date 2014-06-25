@@ -13,7 +13,7 @@
                         :margin 0
                         :background "#ffffff"
                         ;; This overflow controls the right hand margin - we can enable it once our presentation is done
-                        ;;:overflow :hidden
+                        :overflow :hidden
                         }]
           [:.deck-container
            {:position :relative
@@ -53,7 +53,7 @@
             ]
            [:p {:font-size (pt 48)
                 :font-style "italic"
-                :margin [[(em 2) (em 3)]]}]]
+                :margin [[(pt 6) (pt 6)]]}]]
 
           [:div.titleslide
            [:h3 {:text-align :right
@@ -77,7 +77,9 @@
                       :z-index 2
                       :opacity "0.7"
                       }
-           [:img {:width (px 100)}]
+           [:img {:width (px 100)
+                  :margin 0
+                  :padding 0}]
            [:p {:margin 0 :padding 0 :text-align "center" :font-size "11pt" :font-weight "normal"}]]
 
 
