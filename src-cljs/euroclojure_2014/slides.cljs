@@ -624,9 +624,8 @@
            (when-let [title (:title data)]
              [:div
               [:h1 (when (:warning data) {:style {:color "red"
-                                                  :text-shadow "0 0 50px #fa0, 0 0 3px #fff"}}) title]
-              [:p (:text data)]]
-             )
+                                                  :text-shadow "0 0 50px #fa0, 0 0 3px #fff"}}) (if (= "Demo" title)  [:em title] title)]
+              [:p (:text data)]])
 
            (when-let [quote (:blockquote data)]
              [:div
@@ -778,14 +777,14 @@
                 "authorization"
                 ]}
 
-     {:subtitle "Presumption 1"
+     {:subtitle "Preamble 1"
       :bullets ["Libraries are great"
                 "Systems are complex"
                 "Let's make our systems easy to reason about"]}
 
      ;; (was that a Haiku?)
 
-     {:subtitle "Presumption 2"
+     {:subtitle "Preamble 2"
       :bullets ["A meta-architecture, that can scale to hundreds of
                 diverse projects, is useful (consistency, re-use, etc.)"
                 ]}
@@ -834,13 +833,6 @@
       }
 
      {:subtitle "Dependencies"
-      :custom parameterized-dependency-tree
-      :opts {:nodes [["server" "netty-handler"]
-                     ["server" "xively/mqtt-encoder"]
-                     ["server" "xively/mqtt-decoder"]]}
-      }
-
-     {:subtitle "Dependencies"
       :data {:uri "/dependencies"
              :font-size "14pt"
              :mime-type "text/plain"}}
@@ -851,6 +843,13 @@
              :font-size "14pt"
              :mime-type "application/edn"}
       :custom internal-dependency-tree}
+
+     {:subtitle "Dependencies"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["server" "netty-handler"]
+                     ["server" "xively/mqtt-encoder"]
+                     ["server" "xively/mqtt-decoder"]]}
+      }
 
      {:subtitle "Protocols"
       :bullets ["Provide an integration surface for component coupling
@@ -902,39 +901,40 @@
      ;; Next section builds up to the conclusion that objects are 'units of cohesion'
 
      #_{:subtitle "Measuring architecture"
-      :bullets ["For a given business change, how many different areas
+        :bullets ["For a given business change, how many different areas
       of the code must I modify?"
-                ]}
+                  ]}
 
      #_{:subtitle "Implicit coupling between modules"
-      :custom stefan
+        :custom stefan
         :opts {:labels ["Original code" "Copied code"]}
-      }
+        }
 
      #_{:subtitle "Implicit coupling between modules"
-      :custom stefan
+        :custom stefan
         :opts {:labels ["URI formation" "URI dispatch"]}
-      }
+        }
 
      #_{:blockquote "The string is a stark data structure and everywhere it is passed there is much duplication of process. It is a perfect vehicle for hiding information. "
-      }
+        }
 
 
 
      #_{:subtitle "Routes as data"
-      :code {:file "/home/malcolm/Dropbox/src/presentation/src/presentation/website.clj"
-             :lang :clojure
-             :from "(routes"
-             :to "]]"
-             :inclusive true
-             }}
+        :code {:file "/home/malcolm/Dropbox/src/presentation/src/presentation/website.clj"
+               :lang :clojure
+               :from "(routes"
+               :to "]]"
+               :inclusive true
+               }}
 
 
-     {:title "Example"}
+     {:title "Component example"}
 
      {:subtitle "Example: juxt.modular/cljs-builder"
-      :bullets ["Compile cljs on reset"
-                "Wraps Thomas Heller's shadow-build"]}
+      :bullets ["Wraps Thomas Heller's shadow-build"
+                "Compile cljs on reset"
+                "... and more"]}
 
      {:subtitle "Constructor schema"
       :code {:source "modular.cljs/new-cljs-builder-schema" :lang :clojure}}
@@ -1064,10 +1064,10 @@
      {:title "modularity.org"}
      {:title "Google group: modularity"}
 
-     {:title "Q & A"}
+     {:title "Demo"}
 
      #_{:subtitle "TEST"
-      :custom test-graph}
+        :custom test-graph}
 
      ]}))
 
