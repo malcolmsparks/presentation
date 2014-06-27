@@ -12,14 +12,14 @@
 
 (enable-console-print!)
 
-(def ^:const N 10)
+(def ^:const N 5)
 
 (def app-model
   {:maze
    {:N N
     :cursor [(rand-int N)(rand-int N)]
     :visited-nodes #{}
-    :wait 25
+    :wait 250
     :edges #{}}})
 
 (defn move [model]
@@ -62,11 +62,12 @@
         [:button
          {:style {:font-size "32pt"}
           :onClick (fn [ev]
-                             (let [wait (or (get-in @model [:maze :wait]) 10)]
+                             (let [wait (or (get-in @model [:maze :wait]) 250)]
                                (go-loop []
                                  (<! (timeout wait))
                                  (om/transact! model [:maze] move)
                                  (recur))))} "Go"]
+        [:img {:src "/images/bulb1.jpg" :style {:float "left"}}]
         [:svg {:width 400 :height 400}
          (let [n (get-in model [:maze :N])
                size (int (/ 400 n))]
@@ -89,7 +90,12 @@
               [:circle {:cx (+ (* size cx) (/ 400 n 2))
                         :cy (+ (* size cy) (/ 400 n 2))
                         :r (/ 400 5 n)
-                        :fill "red"}])))
+                        :fill "red"}]
+              #_[:image {:x (+ (* size cx) (/ 400 n 2))
+                       :y (+ (* size cy) (/ 400 n 2))
+                       :width 100
+                       :height 100
+                       :xlink:href "/images/bulb1.jpg"}])))
          ]]))))
 
 (defn ^:export page []

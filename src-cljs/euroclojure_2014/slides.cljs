@@ -235,11 +235,11 @@
 
 
 
-(defn dependency-graph-svg [nodes data]
+(defn dependency-graph-svg [zoom nodes data]
   (let [{:keys [nodes edges] :as graph} (layout-nodes nodes)]
     [:svg {:width 1000 :height 700 :viewBox "-20 -20 1000 700" :style {:border "0px solid black"}}
 
-     [:g
+     [:g {:transform (str "scale(" zoom ", " zoom ")")}
       (for [[name {:keys [x y w h]}] nodes]
         [:g {:onMouseOver (fn [ev] (om/update! data [:selected] name))}
          [:rect {:x (- x (int (/ w 2)))
@@ -337,11 +337,12 @@
     (render [_]
       (html
        (dependency-graph-svg
+        0.9
         (for [[k v] (om/get-state owner [:data]) v v]
           [(name k) (name (second v))])
         data)))))
 
-(defn parameterized-dependency-tree [data owner {:keys [nodes]}]
+(defn parameterized-dependency-tree [data owner {:keys [nodes zoom]}]
   (reify
     om/IWillMount
     (will-mount [_]
@@ -355,7 +356,7 @@
     om/IRender
     (render [_]
       (html
-       (dependency-graph-svg nodes data)))))
+       (dependency-graph-svg zoom nodes data)))))
 
 (defn protocols2 [data owner {:keys [label rotate?]}]
   (reify
@@ -383,9 +384,9 @@
                                      (recur new-zoom))))
                                (om/set-state! owner :zoom 0))}
            "zoom out"]
-        (let [sf (if rotate? 1.2 0.7)]
+        (let [sf (if rotate? 1.2 0.8)]
           [:svg {:width 900 :height 600}
-           [:g {:transform (str "scale(" sf "," sf ") rotate(" (* 180 (if rotate? 1 0)) ",400,250)")}
+           [:g {:transform (str "translate(0," (if rotate? -100 0) ") scale(" sf "," sf ") rotate(" (* 180 (if rotate? 1 0)) ",400,250)")}
 
             [:g {:transform "translate(100,-100)"}
              [:rect {:width 600 :height 200
@@ -420,8 +421,8 @@
                     [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Lifecycle"]
                     (when (= :lifecycle (om/get-state owner :protocol))
                       [:g
-                       [:text {:x 0 :y 90 :style {:font-size "18pt"}} "(start [this])"]
-                       [:text {:x 0 :y 120 :style {:font-size "18pt"}} "(stop [this])"]])]])
+                       [:text {:x 0 :y 90 :style {:font-size "18pt"}} "(start [this] …)"]
+                       [:text {:x 0 :y 120 :style {:font-size "18pt"}} "(stop [this] …)"]])]])
 
                 (let [x 380]
                   [:g {:transform (str "translate(" x "," (- p-dist) ")")}
@@ -435,7 +436,7 @@
                             :fill "#ec3"
                             :stroke "black"
                             :stroke-width 4}]
-                    [:text {:x 30 :y 30 :style {:font-size "24pt"}} "Website"]
+                    [:text {:x 30 :y 30 :style {:font-size "24pt"}} "WebService"]
                     (when (= :webservice (om/get-state owner :protocol))
                       [:g
                        [:text {:x 0 :y 90 :style {:font-size "18pt"}} "(request-handlers [this] {:foo (fn [req]…)})"]
@@ -466,31 +467,37 @@
                      :stroke "white"
                      }]]]])]))))
 
-(defn stefan [data owner {:keys [labels]}]
+(defn stefan [data owner {:keys [labels v]}]
   (reify
     om/IRender
     (render [_]
       (html
-       [:svg {:width 800 :height 500}
-        (for [[y label] [[50 "Layer 1"] [200 "Layer 2"] [350 "Layer 3"]]]
-          [:g
-           [:rect {:x 0 :y y :width 800 :height 100 :fill "#88f"}]
-           [:text {:x 700 :y (+ 50 y)} label]])
+       (let [label-style {:font-size "24pt"
+                          :fill "black"
+                          :text-anchor "middle"}
+             py (get [0 100 400 250] v)
+             qy (get [0 400 250 400] v)
+             ]
+         [:svg {:width 800 :height 500}
+          (for [[y label] [[50 "Layer 1"] [200 "Layer 2"] [350 "Layer 3"]]]
+            [:g
+             [:rect {:x 0 :y y :width 800 :height 100 :fill "#88f"}]
+             [:text {:x 700 :y (+ 50 y)} label]])
 
-        (for [[i module] [[0 "A"] [200 "B"] [400 "C"]]]
-          [:g {:transform (str "translate(" i ",0)")}
-           [:rect {:x 30 :y 0 :width 150 :height 500 :fill "rgba(240,192,48,0.6)" :stroke-width 2 :stroke "none" :opacity ".8"}]
-           [:text {:x 40 :y 30} (str "Feature " module)]])
+          (for [[i module] [[0 "A"] [200 "B"] [400 "C"]]]
+            [:g {:transform (str "translate(" i ",0)")}
+             [:rect {:x 30 :y 2 :width 150 :height 480 :fill "rgba(240,192,48,0.9)" :stroke-width 4 :stroke "none" :opacity ".8"}]
+             [:text {:x 40 :y 30} (str "Feature " module)]])
 
-        [:circle {:cx 100 :cy 100 :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
-        [:text {:x 120 :y 100} (first labels)]
+          [:circle {:cx 100 :cy py :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
+          [:text {:x 120 :y (- py 20) :style label-style} (first labels)]
 
-        [:circle {:cx 500 :cy 400 :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
-        [:text {:x 520 :y 400} (second labels)]
+          [:circle {:cx 500 :cy qy :r 10 :stroke-width 2 :stroke "black" :fill "white"}]
+          [:text {:x 520 :y (- qy 20) :style label-style} (second labels)]
 
-        [:line {:x1 100 :y1 100 :x2 500 :y2 400 :stroke-width 2 :stroke "black"}]
+          [:line {:x1 100 :y1 py :x2 500 :y2 qy :stroke-width 2 :stroke "black"}]
 
-        ])))
+          ]))))
 )
 
 
@@ -740,6 +747,9 @@
       :email "malcolm@juxt.pro"
       :twitter "@malcolmsparks"}
 
+     {:subtitle "Warning!"
+      :bullets ["Contains research, evolving ideas, alpha quality software"]}
+
      ;; This is a talk about some of the new things I've been working on
      ;; this year. What I'm presenting here is definitely a
      ;; work-in-progress, not complete and not ready for serious use.
@@ -756,15 +766,12 @@
      {:image "/images/modular.png"}
 
      {:subtitle "modular"
-      :bullets ["bidi router"
-                "http-kit"
-                "mustache templating"
+      :bullets ["http-kit, bidi router, mustache templating"
                 "clojurescript builder"
-                "cassandra"
-                "datomic"
-                "netty"
-                "mqtt"
-                "core.async"]}
+                "cassandra, datomic"
+                "netty, core.async, mqtt"
+                "more being ported from Jig"
+                ]}
 
      {:image "/images/cylon.png"}
 
@@ -777,24 +784,23 @@
                 "authorization"
                 ]}
 
-     {:subtitle "Preamble 1"
+     {:subtitle "Assertion 1"
       :bullets ["Libraries are great"
                 "Systems are complex"
-                "Let's make our systems easy to reason about"]}
+                "Components help to make our systems easy to reason
+                about in bite-sized pieces" ]}
 
      ;; (was that a Haiku?)
 
-     {:subtitle "Preamble 2"
+     {:subtitle "Assertion 2"
       :bullets ["A meta-architecture, that can scale to hundreds of
                 diverse projects, is useful (consistency, re-use, etc.)"
                 ]}
 
      {:subtitle "Agenda"
-      :bullets ["Architecture"
-                "A component example"
-                "Patterns"
-                "Security"
-                "Demo"]}
+      :bullets ["1. Architecture (with a component example)"
+                "2. Patterns"
+                "3. Security with demo"]}
 
      {:title "1. Architecture"
       ;; We don't talk about architecture much in the Clojure community.
@@ -829,8 +835,15 @@
 
      {:subtitle "Dependencies"
       :custom parameterized-dependency-tree
-      :opts {:nodes [["Dependant" "Dependency"]]}
-      }
+      :opts {:nodes [["Dependant" "Dependency"]]
+             :zoom 2}}
+
+     {:subtitle "Dependencies"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["server" "netty-handler"]
+                     ["server" "xively/mqtt-encoder"]
+                     ["server" "xively/mqtt-decoder"]]
+             :zoom 1.4}}
 
      {:subtitle "Dependencies"
       :data {:uri "/dependencies"
@@ -844,21 +857,17 @@
              :mime-type "application/edn"}
       :custom internal-dependency-tree}
 
-     {:subtitle "Dependencies"
-      :custom parameterized-dependency-tree
-      :opts {:nodes [["server" "netty-handler"]
-                     ["server" "xively/mqtt-encoder"]
-                     ["server" "xively/mqtt-decoder"]]}
-      }
+
 
      {:subtitle "Protocols"
       :bullets ["Provide an integration surface for component coupling
-      between a dependant and a dependency"] }
-
-     {:background "/images/bayonet.jpg"}
+      between a dependant and a dependency"
+                "Necessary for component interchangeability"] }
 
      {:subtitle "Bayonet fitting"
       :image "/images/bayonet-fitting-old.jpg"}
+
+     {:background "/images/bayonet.jpg"}
 
      {:image "/images/bayonet-fitting-new.jpg"}
 
@@ -879,12 +888,20 @@
 
      {:subtitle "Hidden couplings"
       :custom stefan
-      :opts {:labels ["Original code" "Copied code"]}
+      :opts {:v 1
+             :labels ["Original code" "Copied code"]}
       }
 
      {:subtitle "Hidden couplings"
       :custom stefan
-      :opts {:labels ["URI formation" "URI dispatch"]}
+      :opts {:v 2
+             :labels ["SQL Query" "Database schema"]}
+      }
+
+     {:subtitle "Hidden couplings"
+      :custom stefan
+      :opts {:v 3
+             :labels ["URI formation" "URI dispatch"]}
       }
 
      {:image "/images/bidi.png"
@@ -918,8 +935,6 @@
      #_{:blockquote "The string is a stark data structure and everywhere it is passed there is much duplication of process. It is a perfect vehicle for hiding information. "
         }
 
-
-
      #_{:subtitle "Routes as data"
         :code {:file "/home/malcolm/Dropbox/src/presentation/src/presentation/website.clj"
                :lang :clojure
@@ -942,6 +957,13 @@
      {:subtitle "Constructor"
       :code {:source "modular.cljs/new-cljs-builder" :lang :clojure}}
 
+     {:subtitle "Template"
+      :code {:file "/home/malcolm/Dropbox/src/presentation/resources/templates/slides.html.mustache"
+             :lang :clojure
+             :from "Javascripts that have"
+             :to "{{{cljs}}}"
+             }}
+
      {:subtitle "Components as units of cohesion"
       :code {:file "/home/malcolm/Dropbox/src/modular/modules/cljs/src/modular/cljs.clj"
              :lang :clojure
@@ -950,12 +972,14 @@
              :inclusive true
              :level 4}}
 
-     {:subtitle "Template"
-      :code {:file "/home/malcolm/Dropbox/src/presentation/resources/templates/slides.html.mustache"
-             :lang :clojure
-             :from "Javascripts that have"
-             :to "{{{cljs}}}"
-             }}
+     {:subtitle "Intermission"
+      :custom maze/maze
+      :maze
+      (let [N 15]
+        {:N N
+         :cursor [(rand-int N)(rand-int N)]
+         :visited-nodes #{}
+         :edges #{}})}
 
      {:title "2. Patterns"}
 

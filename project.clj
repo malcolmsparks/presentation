@@ -62,8 +62,6 @@
                  :welcome (println "Type (dev) to start")}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]
-
-
                                   [http-kit "2.1.13"]
                                   [thheller/shadow-build "0.5.0" :exclusions [org.clojure/clojurescript]]
                                   [de.ubercode.clostache/clostache "1.3.1"]
