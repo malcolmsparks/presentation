@@ -67,7 +67,7 @@
                                  (<! (timeout wait))
                                  (om/transact! model [:maze] move)
                                  (recur))))} "Go"]
-        [:img {:src "/images/bulb1.jpg" :style {:float "left"}}]
+        ;;[:img {:src "/images/bulb1.jpg" :style {:float "left"}}]
         [:svg {:width 400 :height 400}
          (let [n (get-in model [:maze :N])
                size (int (/ 400 n))]

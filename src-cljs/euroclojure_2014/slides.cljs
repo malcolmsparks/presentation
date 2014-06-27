@@ -981,6 +981,13 @@
          :visited-nodes #{}
          :edges #{}})}
 
+     {:subtitle "(map< inc channel)"
+      :custom put-and-take-slide
+      :ops :map
+      #_:code #_{:source "qcon.examples/map-inc"
+                 :lang :clojure}
+      :opts {:buffer-size 7 :font-size "72pt" :radius 40}}
+
      {:title "2. Patterns"}
 
      {:subtitle "The Index pattern"
@@ -988,13 +995,36 @@
       components of a given type"
                 "Examples: Router, TemplateModel, MenuIndex"] }
 
+     {:subtitle "The Index pattern"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["index" "A"]
+                     ["index" "B"]
+                     ["index" "C"]
+                     ["index" "D"]
+                     ]}}
+
      {:subtitle "The Interceptor pattern"
-      :bullets ["A component is wired in-between a dependency and its dependants"
+      :bullets ["A component is wired in-between a dependant and its dependencies"
                 "Example: WebRequestHandlerHead"] }
+
+     {:subtitle "The Interceptor pattern"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["dependant"  "dependency-a"]
+                     ["dependant"  "dependency-b"]
+                     ["dependant"  "dependency-c"]
+                     ]
+             }}
 
      {:subtitle "The Shared Dependency pattern"
       :bullets ["Two components share a dependency"
                 "Example: AsyncChannel"] }
+
+     {:subtitle "The Shared Dependency pattern"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [["putter" "channel"]
+                     ["taker" "channel"]
+                     ]
+             :zoom 1.4}}
 
      ;; btw. about these long names - if we understand that objects are
      ;; units of cohesion of multiple (otherwise disparate) concerns,
@@ -1058,20 +1088,35 @@
                      ["cylon/user-domain" "cylon/user-store"]
                      ]}}
 
-     {:subtitle "Authenticator"
+     {:subtitle "Authorizer"
       :custom parameterized-dependency-tree
-      :opts {:nodes [["cylon/authenticator" "cylon/session-store"]
+      :opts {:nodes [
                      ["router" "cylon/login-form"]
-                     ["router" "cylon/authenticator"]
-                     ["cylon/authenticator" "website-A"]
+                     ["router" "website-A"]
                      ["router" "website-B"]
+                     ["website-B" "cylon/authorizer"]
                      ["cylon/login-form" "cylon/user-domain"]
                      ["cylon/login-form" "cylon/session-store"]
                      ["cylon/user-domain" "cylon/password-algo"]
                      ["cylon/user-domain" "cylon/user-store"]
                      ]}}
 
-     {:subtitle "CSRF protection"
+     {:subtitle "Authenticator"
+      :custom parameterized-dependency-tree
+      :opts {:nodes [
+                     ["router" "cylon/login-form"]
+                     ["router" "website-A"]
+                     ["router" "website-B"]
+                     ["website-B" "cylon/authorizer"]
+                     ["cylon/authorizer" "cylon/authenticator"]
+                     ["cylon/authenticator" "cylon/session-store"]
+                     ["cylon/login-form" "cylon/user-domain"]
+                     ["cylon/login-form" "cylon/session-store"]
+                     ["cylon/user-domain" "cylon/password-algo"]
+                     ["cylon/user-domain" "cylon/user-store"]
+                     ]}}
+
+     #_{:subtitle "CSRF protection"
       :custom parameterized-dependency-tree
       :opts {:nodes [["ring-head" "router"]
                      ["ring-head" "cylon/anti-forgery"]
