@@ -69,6 +69,15 @@
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
+     ::bidi
+     (fn [req]
+       (->> {:body (html [:div#content [:p.loading "Loading..."]])
+             :cljs (html [:script {:type "text/javascript"}
+                         "bidi.bidi.page()"])}
+            (merge (request-determined-template-data (:template-model this) req))
+            (parser/render-resource "templates/slides.html.mustache")
+            response))
+
      ::maze
      (fn [req]
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
@@ -108,6 +117,7 @@
 
           ["speakerconf-2014" ::speakerconf-2014]
           ["euroclojure-2014" ::euroclojure-2014]
+          ["bidi" ::bidi]
           ["maze" ::maze]
 
           ["source" (-> (src/source-resource) wrap-params)]

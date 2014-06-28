@@ -101,14 +101,20 @@
    ;; ClojureScript modules are components too
    :cljs-core (new-cljs-module :name :cljs :mains ['cljs.core] :dependencies #{})
    :speakerconf (new-cljs-module
-                          :name :speakerconf-2014
-                          :mains ['speakerconf-2014.slides]
-                          :dependencies #{:cljs})
+                 :name :speakerconf-2014
+                 :mains ['speakerconf-2014.slides]
+                 :dependencies #{:cljs})
 
    :euroclojure (new-cljs-module
-                          :name :euroclojure-2014
-                          :mains ['euroclojure-2014.slides]
-                          :dependencies #{:cljs})
+                 :name :euroclojure-2014
+                 :mains ['euroclojure-2014.slides]
+                 :dependencies #{:cljs})
+
+   :bidi
+   (new-cljs-module
+    :name :bidi
+    :mains ['bidi.bidi]
+    :dependencies #{:cljs})
 
    ;; As are the ClojureScript builders which run on each reset
    :cljs-builder
@@ -135,7 +141,8 @@
 
     :cljs-builder [:cljs-core
                    :speakerconf
-                   :euroclojure]
+                   :euroclojure
+                   :bidi]
     }
 
    (autowire-dependencies-satisfying system-map :router WebService)
