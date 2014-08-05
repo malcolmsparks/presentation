@@ -24,7 +24,7 @@
    [liberator.core :refer (defresource)]
    [clostache.parser :as parser]
    [presentation.slides :as slides]
-   [modular.web-template :refer (WebRequestDeterminedTemplateData request-determined-template-data)]))
+   [modular.web-template :refer (dynamic-template-data)]))
 
 (defn markdown-body [markdown-path routes]
   {:body (markdown
@@ -47,7 +47,7 @@
     {::index
      (fn [{routes :modular.bidi/routes :as req}]
        (->> (markdown-body "markdown/index.md" routes)
-            (merge (request-determined-template-data (:template-model this) req))
+            (merge (dynamic-template-data (:template-model this) req))
             (parser/render-resource "templates/page.html.mustache")
             response))
 
@@ -56,7 +56,7 @@
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
              :cljs (html [:script {:type "text/javascript"}
                          "speakerconf_2014.slides.page()"])}
-            (merge (request-determined-template-data (:template-model this) req))
+            (merge (dynamic-template-data (:template-model this) req))
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
@@ -65,7 +65,7 @@
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
              :cljs (html [:script {:type "text/javascript"}
                          "euroclojure_2014.slides.page()"])}
-            (merge (request-determined-template-data (:template-model this) req))
+            (merge (dynamic-template-data (:template-model this) req))
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
@@ -74,7 +74,7 @@
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
              :cljs (html [:script {:type "text/javascript"}
                          "bidi.bidi.page()"])}
-            (merge (request-determined-template-data (:template-model this) req))
+            (merge (dynamic-template-data (:template-model this) req))
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
@@ -83,7 +83,7 @@
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
              :cljs (html [:script {:type "text/javascript"}
                          "maze.page()"])}
-            (merge (request-determined-template-data (:template-model this) req))
+            (merge (dynamic-template-data (:template-model this) req))
             (parser/render-resource "templates/slides.html.mustache")))
 
      ::logo (->
@@ -94,7 +94,7 @@
      ::architecture
      (fn [{routes :modular.bidi/routes :as req}]
        (->> (markdown-body "markdown/architecture.md" routes)
-            (merge (request-determined-template-data (:template-model this) req))
+            (merge (dynamic-template-data (:template-model this) req))
             (parser/render-resource "templates/page.html.mustache")
             response))
 

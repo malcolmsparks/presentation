@@ -14,7 +14,7 @@
    [modular.http-kit :refer (new-webserver)]
    [modular.maker :refer (make)]
    [modular.template :refer (new-static-template-data)]
-   [modular.web-template :refer (new-web-request-determined-template-model)]
+   [modular.web-template :refer (new-system-dynamic-template-model)]
    [modular.wire-up :refer (autowire-dependencies-satisfying)]
    [modular.ring :refer (new-web-request-handler-head)]
 
@@ -59,7 +59,7 @@
          (user-config)))
 
 (defn new-base-system-map
-  [config]
+  [config systemref]
 
   (system-map
    ;; We create the system map by calling a constructor for each
@@ -88,7 +88,7 @@
 
    ;; A template is a RingBinding - it adds :modular.template/template
    ;; to the Ring request.
-   :template-model (make new-web-request-determined-template-model config)
+   :template-model (make new-system-dynamic-template-model config :systemref systemref)
 
    ;; Templates collate TemplateModel components. Here's a static one.
    :web-meta (make new-static-template-data config
