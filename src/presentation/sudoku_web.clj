@@ -14,7 +14,7 @@
   :respond-with-entity? true
   :post! (fn [{{body :body} :request}]
            (let [puzzle (edn/read (java.io.PushbackReader. (io/reader body)))]
-             {::solution (solve puzzle)}))
+             {::solution (solve (apply concat puzzle))}))
   :handle-ok (fn [{solution ::solution}]
                (partition 9 solution)))
 

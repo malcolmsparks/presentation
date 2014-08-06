@@ -37,25 +37,7 @@
        [:div {:style {:text-align "center"}}
 
         ;; Solve button
-        [:button
-         {:style {:font-size "32pt"}
-          :onClick (fn [ev]
-                     (net/request
-                      :uri "/sudoku"
-                      :content (:puzzle @data)
-                      :callback (fn [response]
-                                  (om/update! data :solution (:body response)))
-                      :accept "application/edn"
-                      :method :post))}
-         "Solve?"]
 
-        ;; Reset button
-        [:button
-         {:style {:font-size "20pt"}
-          :onClick (fn [ev]
-                     (om/update! data :solution (:puzzle @data))
-                     )}
-         "Reset"]
 
         [:table.sudoku
          (for [row (:solution data)]
@@ -63,7 +45,30 @@
             (for [cell row]
               (if (pos? cell)
                 [:td cell]
-                [:td ""]))])]]))))
+                [:td ""]))])]
+
+        [:div {:style {:float "left"}}
+         [:p
+          [:button
+           {:style {:font-size "32pt"}
+            :onClick (fn [ev]
+                       (net/request
+                        :uri "/sudoku"
+                        :content (:puzzle @data)
+                        :callback (fn [response]
+                                    (om/update! data :solution (:body response)))
+                        :accept "application/edn"
+                        :method :post))}
+           "Solve?"]]
+
+         ;; Reset button
+         [:p
+          [:button
+           {:style {:font-size "20pt"}
+            :onClick (fn [ev]
+                       (om/update! data :solution (:puzzle @data))
+                       )}
+           "Reset"]]]]))))
 
 (defn slide [data owner]
   (reify
