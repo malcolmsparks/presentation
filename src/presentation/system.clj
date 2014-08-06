@@ -19,6 +19,8 @@
    [modular.ring :refer (new-web-request-handler-head)]
 
    [presentation.website :refer (new-website)]
+   [presentation.sudoku-web :refer (new-sudoku-handler)]
+
    [util.src-browser :refer (new-source-browser)]
    [util.bootstrap :refer (new-bootstrap-login-form)]
    [util.sse :refer (new-event-service)]
@@ -110,6 +112,13 @@
                  :mains ['euroclojure-2014.slides]
                  :dependencies #{:cljs})
 
+   :clojure-ireland (new-cljs-module
+                     :name :clojure-ireland
+                     :mains ['clojure-ireland.slides]
+                     :dependencies #{:cljs})
+
+   :sudoku (new-sudoku-handler)
+
    :bidi
    (new-cljs-module
     :name :bidi
@@ -142,6 +151,7 @@
     :cljs-builder [:cljs-core
                    :speakerconf
                    :euroclojure
+                   :clojure-ireland
                    :bidi]
     }
 

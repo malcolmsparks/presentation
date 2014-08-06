@@ -69,6 +69,15 @@
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
+     ::clojure-ireland
+     (fn [req]
+       (->> {:body (html [:div#content [:p.loading "Loading..."]])
+             :cljs (html [:script {:type "text/javascript"}
+                         "clojure_ireland.slides.page()"])}
+            (merge (dynamic-template-data (:template-model this) req))
+            (parser/render-resource "templates/slides.html.mustache")
+            response))
+
      ::bidi
      (fn [req]
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
@@ -117,6 +126,7 @@
 
           ["speakerconf-2014" ::speakerconf-2014]
           ["euroclojure-2014" ::euroclojure-2014]
+          ["clojure-ireland" ::clojure-ireland]
           ["bidi" ::bidi]
           ["maze" ::maze]
 

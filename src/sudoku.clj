@@ -1,6 +1,6 @@
 ;; Copyright © 2014, JUXT LTD. All Rights Reserved.
 (ns sudoku
-  (:refer-clojure :exclude [==])
+  (:refer-clojure :exclude [== record?])
   (:require
    [clojure.core.logic :refer :all]
    [clojure.core.logic.fd :as fd]
@@ -40,7 +40,7 @@
           (everyg hinto (map vector (apply concat puzzle) vars))
           (everyg fd/distinct (partition 9 vars))
           (everyg fd/distinct (apply map vector (partition 9 vars)))
-          #_(everyg fd/distinct (->> vars
+          (everyg fd/distinct (->> vars
                                    (partition 3)
                                    (partition 3)
                                    (apply interleave)
