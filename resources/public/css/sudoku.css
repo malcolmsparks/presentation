@@ -7,8 +7,8 @@ table.sudoku
 table.sudoku td
 {
     font-size: 32pt;
-    width: 48px;
-    height: 48px;
+    width: 48pt;
+    height: 48pt;
     text-align: center;
     border: 2px solid grey;
 }
