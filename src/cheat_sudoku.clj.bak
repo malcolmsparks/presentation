@@ -1,0 +1,27 @@
+(defn hinto [[hint var]]
+  (if (pos? hint)
+    (== hint var)
+    succeed))
+
+(defn solve
+  [puzzle]
+  (println "puzzle is " puzzle)
+  #_(repeatedly 81 #(rand-nth (map inc (range 9))))
+
+  (first
+   (let [vars (repeatedly 81 lvar)]
+     (run 1 [q]
+          (== q vars)
+          (everyg #(fd/in % (apply fd/domain (range 1 10))) vars)
+          (everyg hinto (map vector puzzle vars))
+          (everyg fd/distinct (partition 9 vars))
+          (everyg fd/distinct (apply map vector (partition 9 vars)))
+          #_(everyg fd/distinct (->> vars
+                                   (partition 3)
+                                   (partition 3)
+                                   (apply interleave)
+                                   (partition 3)
+                                   (map (partial apply concat))))
+          )))
+
+  )
