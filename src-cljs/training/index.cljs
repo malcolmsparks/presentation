@@ -1,18 +1,18 @@
 (ns training.index
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require
-   [clojure.string :as string]
-   [cljs.reader :as reader]
-   [cljs.core.async :refer [<! >! chan put! sliding-buffer close! pipe map< filter< mult tap map> buffer dropping-buffer timeout]]
    [om.core :as om :include-macros true]
-   [sablono.core :as html :refer-macros [html]]
-   [ankha.core :as ankha]
-   [goog.events :as events]
-   [goog.events.KeyCodes :as kc]
-   [presentation.source :as src]
-   [util.net :as net]
-   [maze :as maze]
-   ))
+   [sablono.core :as html :refer-macros [html]]))
+
+(defn agenda [data owner]
+  (reify
+    om/IRender
+    (render [_]
+      (html
+       [:div
+        [:h2 "Agenda"]
+        [:ul {:style {:font-size "42pt"}}
+         (for [{:keys [id title]} (:modules data)]
+           [:li [:a {:style {:color "inherit"} :href id} title]])]]))))
 
 (def model
   (atom
@@ -23,4 +23,7 @@
       :author "Malcolm Sparks"
       :email "malcolm@juxt.pro"
       :twitter "@malcolmsparks"}
+
+     {:custom agenda
+      :modules [{:id "concurrency" :title "Concurrency"}]}
      ]}))

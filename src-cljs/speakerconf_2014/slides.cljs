@@ -668,6 +668,4 @@
   ;; Listen for bookmark uri changes
   (goog.events.listen
    js/window "hashchange" (constantly (switch-to-hash)))
-
-  (om/root slides model {:target (.getElementById js/document "content")})
-  )
+  (om/root slides model {:target (.getElementById js/document "content")}))
