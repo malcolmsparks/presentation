@@ -52,7 +52,7 @@
    [org.slf4j/log4j-over-slf4j "1.7.2"]
 
    ;; Logic
-   [org.clojure/core.logic "0.8.4"]
+   [org.clojure/core.logic "0.8.8"]
 
    ;; temp
    [cheshire "5.3.1"]
@@ -64,7 +64,8 @@
   :main presentation.main
 
   :repl-options {:init-ns user
-                 :welcome (println "Type (dev) to start")}
+                 :welcome (println "Type (dev) to start")
+                 }
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]
                                   [http-kit "2.1.13"]

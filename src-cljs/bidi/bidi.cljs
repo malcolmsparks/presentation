@@ -37,4 +37,4 @@
 (defn ^:export page []
   (println "bidi!")
   (println "bidi:" (path-for routes :index))
-  (println "bidi:" (type #"uuu")))
+  )
