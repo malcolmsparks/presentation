@@ -168,13 +168,13 @@
       :twitter "@malcolmsparks"}
      ]}))
 
-(defn switch-to-hash []
+(defn switch-to-hash [model]
   (let [hash (subs (.-hash (.-location js/window)) 1)]
     (when-not (string/blank? hash)
       (let [current-slide (JSON/parse hash)]
         (swap! model assoc-in [:current-slide] current-slide)))))
 
 (defn ^:export page [model]
-  (switch-to-hash)
-  (goog.events.listen js/window "hashchange" (fn [_] (switch-to-hash)))
+  (switch-to-hash model)
+  (goog.events.listen js/window "hashchange" (fn [_] (switch-to-hash model)))
   (om/root slides model {:target (.getElementById js/document "content")}))

@@ -12,10 +12,11 @@
 
 ### Modules
 
-* [clojure.core](/training/clojure.core)
+* [clojure.core](/training/clojure)
 * [concurrency](/training/concurrency)
-* [core.async](/training/core.async)
+* [core.async](/training/async)
 * [web](/training/web)
+* [liberator](/training/liberator)
 * [component](/training/component)
 
 ### Exercises

@@ -4,4 +4,5 @@
   (atom
    {:current-slide 1
     :slides
-    [{:title "Concurrency"}]}))
+    [{:title "Concurrency"}
+     {:subtitle "Atoms"}]}))

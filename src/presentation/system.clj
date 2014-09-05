@@ -124,8 +124,7 @@
 
    :training (new-cljs-module
               :name :training
-              :mains ['training.index
-                      'training.concurrency]
+              :mains ['training.index]
               :dependencies #{:cljs :slideshow})
 
    ;; Add training modules here, dependent on :training

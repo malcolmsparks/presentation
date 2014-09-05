@@ -1,7 +1,8 @@
 (ns training.index
   (:require
    [om.core :as om :include-macros true]
-   [sablono.core :as html :refer-macros [html]]))
+   [sablono.core :as html :refer-macros [html]]
+   training.concurrency))
 
 (defn agenda [data owner]
   (reify
@@ -11,8 +12,10 @@
        [:div
         [:h2 "Agenda"]
         [:ul {:style {:font-size "42pt"}}
-         (for [{:keys [id title]} (:modules data)]
-           [:li [:a {:style {:color "inherit"} :href id} title]])]]))))
+         (for [{:keys [id model title]} (:modules data)]
+           [:li (if model
+                  [:a {:style {:color "inherit"} :href id} (-> model deref :slides first :title)]
+                  title)])]]))))
 
 (def model
   (atom
@@ -25,5 +28,12 @@
       :twitter "@malcolmsparks"}
 
      {:custom agenda
-      :modules [{:id "concurrency" :title "Concurrency"}]}
+      :modules [{:id "clojure" :title "Clojure recap"}
+                {:id "concurrency" :model training.concurrency.model}
+                {:id "async" :title "core.async"}
+                {:id "web" :title "Web development"}
+                {:id "liberator" :title "Liberator"}
+                {:id "component" :title "Component"}
+
+                ]}
      ]}))
