@@ -78,6 +78,17 @@
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
+     ::training
+     (fn [req]
+       (let [module (-> req :route-params :module)]
+         (->> {:body (html [:div#content [:p.loading "Loading..."]])
+               :cljs (html [:script {:type "text/javascript"}
+                            (format "juxt.slideshow.page(%s)"
+                                    (format "training.%s.model" module))])}
+              (merge (dynamic-template-data (:template-model this) req))
+              (parser/render-resource "templates/slides.html.mustache")
+              response)))
+
      ::bidi
      (fn [req]
        (->> {:body (html [:div#content [:p.loading "Loading..."]])
@@ -129,6 +140,8 @@
           ["clojure-ireland" ::clojure-ireland]
           ["bidi" ::bidi]
           ["maze" ::maze]
+
+          [["training/" :module] ::training]
 
           ["source" (-> (src/source-resource) wrap-params)]
 

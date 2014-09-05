@@ -117,6 +117,20 @@
                      :mains ['clojure-ireland.slides]
                      :dependencies #{:cljs})
 
+   :slideshow (new-cljs-module
+               :name :slideshow
+               :mains ['juxt.slideshow]
+               :dependencies #{:cljs})
+
+   :training (new-cljs-module
+              :name :training
+              :mains ['training.index
+                      'training.concurrency]
+              :dependencies #{:cljs :slideshow})
+
+   ;; Add training modules here, dependent on :training
+   ;; Ultimately re-use the same slides module across everything
+
    :sudoku (new-sudoku-handler)
 
    :bidi
@@ -149,9 +163,11 @@
     :sse {:channel :channel}
 
     :cljs-builder [:cljs-core
+                   :slideshow
                    :speakerconf
                    :euroclojure
                    :clojure-ireland
+                   :training
                    :bidi]
     }
 
