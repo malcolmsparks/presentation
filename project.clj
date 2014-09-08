@@ -11,8 +11,8 @@
    [com.stuartsierra/component "0.2.1"]
 
    ;; Browser
-   [org.clojure/clojurescript "0.0-2202"]
-   ;;[org.clojure/clojurescript "0.0-2173"]
+   ;;[org.clojure/clojurescript "0.0-2202"]
+   [org.clojure/clojurescript "0.0-2173"]
    ;;[org.clojure/clojurescript "0.0-2138"]
    [om "0.6.4"]
    [sablono "0.2.6" :exclusions [com.facebook/react]]
