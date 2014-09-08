@@ -12,11 +12,29 @@
 
 ### Modules
 
-* [clojure.core](/training/clojure)
-* [concurrency](/training/concurrency)
-* [core.async](/training/async)
-* [web](/training/web)
-* [liberator](/training/liberator)
-* [component](/training/component)
+* [Advanced web development](/training/aweb) - Web security, async
+* [bidi](/training/bidi) - Bidirectional web routing
+* [clojure.core](/training/clojure) - Clojure fundamentals
+* [component](/training/component) - Clojure in the large
+* [concurrency](/training/concurrency) - Concurrency primitives (atoms, refs, etc.)
+* [core.async](/training/async) & Communicating Sequential Processes
+* [core.logic](/training/logic) - Logic Programming
+* [Cylon](/training/cylon) - Modular web security with Cylon
+* [Datomic](/training/datomic) patterns
+* [Elastic Search](/training/elasticsearch) - building search engines with Elastic Search
+* [Emacs](/training/emacs) - Getting started with Emacs
+* [JSON](/training/json) (includes cheshire & transit)
+* [Liberator](/training/liberator) - REST API development
+* [Modular](/training/modular) - Modular systems architecture
+* [Om](/training/om) and ClojureScript
+* [Pedestal](/training/pedestal) - Building websites with dataflow
+* [Protocols](/training/protocols) & Records (including multi-methods)
+* [Setup](/training/setup) - Getting setup with projects
+* [Testing](/training/testing) with clojure.test
+* [Tranducers](/training/tranducers) (including Reducers)
+* [Web development](/training/web) - Ring, middleware and routing with Compojure
+* [XML](/training/xml) - Efficient XML handling in Clojure
+* [Zippers](/training/zippers) (with functional lenses)
+
 
 ### Exercises

@@ -2,7 +2,26 @@
   (:require
    [om.core :as om :include-macros true]
    [sablono.core :as html :refer-macros [html]]
-   training.concurrency))
+   training.async
+   training.aweb
+   training.bidi
+   training.clojure
+   training.component
+   training.concurrency
+   training.datomic
+   training.elasticsearch
+   training.json
+   training.liberator
+   training.logic
+   training.modular
+   training.om
+   training.pedestal
+   training.setup
+   training.testing
+   training.transducers
+   training.web
+   training.xml
+   training.zippers))
 
 (defn agenda [data owner]
   (reify
@@ -10,7 +29,7 @@
     (render [_]
       (html
        [:div
-        [:h2 "Agenda"]
+        [:h2 "Syllabus"]
         [:ul {:style {:font-size "42pt"}}
          (for [{:keys [id model title]} (:modules data)]
            [:li (if model
@@ -28,12 +47,14 @@
       :twitter "@malcolmsparks"}
 
      {:custom agenda
-      :modules [{:id "clojure" :title "Clojure recap"}
+      :modules [{:id "clojure" :model training.clojure.model}
+                {:id "setup" :model training.setup.model}
+                {:id "component" :model training.component.model}
                 {:id "concurrency" :model training.concurrency.model}
-                {:id "async" :title "core.async"}
-                {:id "web" :title "Web development"}
-                {:id "liberator" :title "Liberator"}
-                {:id "component" :title "Component"}
+                {:id "async" :model training.async.model}
+                {:id "web" :model training.web.model}
+                {:id "liberator" :model training.liberator.model}
+                {:title "Up to you"}
 
                 ]}
      ]}))
