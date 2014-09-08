@@ -52,7 +52,7 @@
                  }
             ]
            [:p {:font-size (pt 48)
-                :font-style "italic"
+                #_:font-style #_"italic"
                 :margin [[(pt 6) (pt 6)]]}]]
 
           [:div.titleslide

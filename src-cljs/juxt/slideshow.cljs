@@ -58,12 +58,32 @@
              [:div
               [:h1 ""]
               [:blockquote (str "“" quote "”")]
-              [:p {:style {:text-align "right"}} (:author data)]
+              [:p {:style {:text-align "right"
+                           }} (:author data)]
               ]
              )
 
            (when-let [subtitle (:subtitle data)]
              [:h2 subtitle])
+
+           (when-let [placeholder (:placeholder data)]
+             [:p {:style {:text-align "center"
+                          :margin-top "200px"}}
+              placeholder]
+             )
+
+           (when-let [[owner repo] (:repo data)]
+             [:p {:style {:text-align "center"
+                          :margin-top "200px"}}
+              [:span {:class "mega-octicon octicon-repo"
+                      :style {:color "#bbb"
+                              :font-size "64pt"}}]
+              [:span {:style {:color "#4183c4"
+                              :font-variant "normal"}}
+               " " owner [:span {:style {:color "#666"}} " / "]
+               [:span {:style {:font-weight "bold"}}
+                repo]]]
+             )
 
            (when-let [url (:url data)]
              [:p [:a {:href url} url]])
