@@ -7,8 +7,7 @@
     :slides
     [{:title "Component"}
 
-     {:subtitle "Summary"
-      :bullets [""]}
+     {:repo ["clojure" "tools.namespace"]}
 
      {:repo ["stuartsierra" "component"]}
 
