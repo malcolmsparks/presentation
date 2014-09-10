@@ -13,14 +13,14 @@
                         :margin 0
                         :background "#ffffff"
                         ;; This overflow controls the right hand margin - we can enable it once our presentation is done
-                        :overflow :hidden
+;;                        :overflow :hidden
                         }]
           [:.deck-container
            {:position :relative
             :min-height (percent 100)
             :margin [[0 :auto]]
             :overflow :hidden :overflow-y :auto}]
-          [:.slide {:width (px 1024)
+          [:.slide {:width (px 1424) ; AAAA
                     :min-height (px 768)
                     :margin-top (px 2)
                     :margin-left :auto
@@ -51,7 +51,7 @@
                  :font-size (pt 32)
                  }
             ]
-           [:p {:font-size (pt 48)
+           [:p {:font-size (pt 32)
                 #_:font-style #_"italic"
                 :margin [[(pt 6) (pt 6)]]}]]
 

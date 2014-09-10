@@ -46,7 +46,11 @@
                   (when-let [inclusive (:inclusive data)] (str "&inclusive=" inclusive)))
         :callback (fn [res]
                     (om/set-state! owner :text (:body res)))
-        :accept "text/plain"))))
+        :accept "text/plain"))
+
+   (when-let [verbatim (get-in data [:verbatim])]
+     (om/set-state! owner :text verbatim)
+     )))
 
 (defn source-snippet [data owner]
   (reify
