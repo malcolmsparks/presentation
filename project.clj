@@ -47,18 +47,30 @@
    ;; Logging
    [org.clojure/tools.logging "0.2.6"]
    [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
-   [org.slf4j/jul-to-slf4j "1.7.2"]
-   [org.slf4j/jcl-over-slf4j "1.7.2"]
-   [org.slf4j/log4j-over-slf4j "1.7.2"]
+   [org.slf4j/slf4j-api "1.7.7"]
+
+   ;;[org.slf4j/jul-to-slf4j "1.7.7"]
+   ;;[org.slf4j/jcl-over-slf4j "1.7.7"]
+   ;;[org.slf4j/log4j-over-slf4j "1.7.7"]
 
    ;; Logic
    [org.clojure/core.logic "0.8.8"]
+   [org.clojure/math.combinatorics "0.0.8"]
+
+   ;; Datomic
+   [com.datomic/datomic-free "0.9.4815.12"
+    :exclusions [org.slf4j/jul-to-slf4j
+                 org.slf4j/log4j-over-slf4j
+                 org.slf4j/slf4j-api
+                 org.slf4j/jcl-over-slf4j
+                 com.amazonaws/aws-java-sdk]]
 
    ;; temp
    [cheshire "5.3.1"]
    [juxt.modular/http-kit "0.5.1"]
    [liberator "0.11.0"]
    [clj-jwt "0.0.8"]
+
    ]
 
   :main presentation.main

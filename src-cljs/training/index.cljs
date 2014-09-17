@@ -9,6 +9,7 @@
    training.component
    training.concurrency
    training.datomic
+   training.deployment
    training.elasticsearch
    training.json
    training.liberator
@@ -30,7 +31,7 @@
     (render [_]
       (html
        [:div
-        [:h2 "Syllabus"]
+        [:h2 "Today's agenda"]
         [:ul {:style {:font-size "42pt"}}
          (for [{:keys [id model title]} (:modules data)]
            [:li (if model
@@ -62,24 +63,24 @@
       :bullets ["Course will be given in modules"
                 "90% of learning will happen during programming exercises"
                 "Learning through doing, reflecting, discussing"
-                "Frustration is normal"
-                "So are silly mistakes!"]}
+                ]}
 
      {:subtitle "Don't Panic"
       :bullets ["Clojure is advanced"
                 "We can solve hard problems with it! :)"
-                "Clojure is really hard :("
-                "Therefore, on this course: ask questions; be honest; interrupt any time; be yourself, but..."]}
+                "Clojure is really hard :("]}
 
      {:subtitle "Stretch yourself"
-      :bullets ["Carpe diem"
+      :bullets ["Carpe Diem"
+                "Interrupt; Ask questions"
                 "Try things, experiment"
-                "Roll with confusion and frustration"]}
+                "Frustration and confusion is normal, roll with it :)"
+                "Everyone will make silly mistakes"]}
 
      {:subtitle "Wednesday: Setup, Sequences, State, Structure & Schema"
       :bullets ["Intro (this)"
                 "Setup"
-                "Clojure recap"
+                "Clojure recap: sequences"
                 "Component"
                 "Concurrency"
                 "core.async"
@@ -91,15 +92,24 @@
                 "Datomic"
                 "Deployment"]}
 
-     {:subtitle "Friday: Real World Clojure"
-      :bullets ["Testing"
+     {:subtitle "Friday"
+      :bullets ["Finish off Datomic work"
+                "Testing"
                 "RESTful Clojure (Liberator)"
                 "Techniques for working with large Clojure projects"]}
 
+     #_{:custom agenda
+        :modules [{:id "setup" :model training.setup.model}
+                  {:id "sequences" :model training.sequences.model}
+                  {:id "component" :model training.component.model}
+                  {:id "concurrency" :model training.concurrency.model}
+                  {:id "async" :model training.async.model}
+                  ]}
+
      {:custom agenda
-      :modules [{:id "setup" :model training.setup.model}
-                {:id "sequences" :model training.sequences.model}
-                {:id "component" :model training.component.model}
-                {:id "concurrency" :model training.concurrency.model}
-                {:id "async" :model training.async.model}
+      :modules [{:subtitle "Friday: Web"
+
+                 }
+
+
                 ]}]}))

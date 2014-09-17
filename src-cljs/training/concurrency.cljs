@@ -8,11 +8,11 @@
 
      {:subtitle "Atoms"
       :text "For synchronous un-coordinated mutation"
-      :code {:verbatim "(def l (atom []))
+      :code {:verbatim "(def a (atom []))
 
-(swap! l conj 1)
+(swap! a conj 1)
 
-(deref l)
+(deref a)
 "}}
 
      {:subtitle "Refs"

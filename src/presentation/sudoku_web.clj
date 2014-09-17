@@ -8,11 +8,12 @@
 
 (defresource sudoku-resource
   :available-media-types #{"application/edn"}
-  :allowed-methods #{:post}
+  :allowed-methods #{:post :get}
   :exists? true
   :new? false
   :respond-with-entity? true
   :post! (fn [{{body :body} :request}]
+           (println "POSTING to sudoku solver")
            (let [puzzle (edn/read (java.io.PushbackReader. (io/reader body)))]
              {::solution (solve (apply concat puzzle))}))
   :handle-ok (fn [{solution ::solution}]

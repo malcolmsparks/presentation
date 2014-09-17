@@ -45,6 +45,7 @@
 (defn ajax< [in & {:as opts}]
   (let [out (chan)]
     (go-loop []
+      (println "ajax< looping")
       (when-let [m (<! in)]
         (let [m (merge {:timeout 0} opts m)
               headers (clj->js (into {} (remove (comp nil? second)
@@ -53,6 +54,7 @@
               _ (assert (contains? m :method) "Missing method")
               _ (assert (contains? m :uri) "Missing URI")
               content (when-let [content (:content m)] (csk/->js content))]
+          (println "creating xhrio: ")
           (doto (new goog.net.XhrIo)
             (events/listen goog.net.EventType/COMPLETE
                            (fn [ev]
@@ -62,6 +64,7 @@
                                (go
                                  (>! out {:status status :body body})))))
             (.setTimeoutInterval (:timeout m))
+            (println "sending to: " (:uri m))
             (.send (:uri m)
                    (if (keyword? (:method m))
                      (upper-case (name (:method m)))
@@ -77,6 +80,7 @@
 (defn request [& {:keys [callback] :as opts}]
   (let [send (chan)
         recv (apply ajax< send (apply concat (seq (merge {:method :get} opts))))]
+    (println "Requesting: opts is" opts)
     (go
       (>! send {})
       (callback (<! recv))

@@ -463,5 +463,14 @@
       :image "/images/pds.png"
       }
 
+     {:subtitle "Exercise"
+      :bullets ["Add core.async"
+                "[org.clojure/core.async \"0.1.267.0-0d7780-alpha\"]"
+                "Create a channel in your producer's start phase"
+                "Bind it to the system"
+                "Create a go loop to put values to it"
+                "In your consumer, take the values and print to the console"]
+      }
+
 
      ]}))
