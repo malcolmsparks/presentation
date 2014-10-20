@@ -6,7 +6,28 @@
     :slides
     [{:title "Clojure"}
 
-     {:subtitle "Sequences"
-      :bullets ["Collections, strings, maps and other data structures can be treated as sequences"]}
+     {:image "/images/Hilbert.jpg"}
+
+     {:image "/images/turing2.jpg"}
+
+     {:image "/images/220px-JohnvonNeumann-LosAlamos.gif"}
+
+     {:bullets ["COBOL" "ALGOL" "BASIC" "C" "Java"]}
+
+     {:image "/images/church1.jpg"}
+
+     {:image "/images/mccarthy.jpg"}
+
+     {:bullets ["LISP" "Scheme" "Clojure"]}
+
+     {:title "Syntax"}
+
+     {:title "Data"}
+
+     ;; Lists, Vectors, Maps, Sets
+
+     {:title "Functions"}
+
+     {:title "Sequences"}
 
      ]}))

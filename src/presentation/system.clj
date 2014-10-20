@@ -20,6 +20,7 @@
 
    [presentation.website :refer (new-website)]
    [presentation.sudoku-web :refer (new-sudoku-handler)]
+   [training.pdf :refer (new-worksheets)]
 
    [util.src-browser :refer (new-source-browser)]
    [util.bootstrap :refer (new-bootstrap-login-form)]
@@ -144,6 +145,8 @@
 
    ;; Another WebService
    :src-browser (new-source-browser)
+
+   :worksheets (new-worksheets)
    ))
 
 (defn new-dependency-map [system-map]
@@ -167,8 +170,7 @@
                    :euroclojure
                    :clojure-ireland
                    :training
-                   :bidi]
-    }
+                   :bidi]}
 
    (autowire-dependencies-satisfying system-map :router WebService)
    ))

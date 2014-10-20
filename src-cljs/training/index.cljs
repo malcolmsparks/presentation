@@ -31,19 +31,21 @@
     (render [_]
       (html
        [:div
-        [:h2 "Today's agenda"]
+        #_[:h2 (or (:subtitle data) "Today's agenda")]
         [:ul {:style {:font-size "42pt"}}
          (for [{:keys [id model title]} (:modules data)]
-           [:li (if model
-                  [:a {:style {:color "inherit"} :href id} (-> model deref :slides first (#(or (:title %) (:subtitle %))))]
-                  title)])]]))))
+           [:li
+            (cond model [:a {:style {:color "inherit"} :href id} (or title (-> model deref :slides first (#(or (:title %) (:subtitle %)))))]
+                  title title
+                  :otherwise "FIXME")
+            ])]]))))
 
 (def model
   (atom
    {:current-slide 1
     :slides
-    [{:title "Advanced Clojure Training"
-      :event "HSBC – Stirling"
+    [{:title "Fast-track to Clojure"
+      :event "Skills Matter – London"
       :author "Malcolm Sparks"
       :email "malcolm@juxt.pro"
       :twitter "@malcolmsparks"}
@@ -55,7 +57,8 @@
                 "Anything else to share?"]}
 
      {:subtitle "Malcolm's bio"
-      :bullets ["Programming Clojure fulltime for ~5 years"
+      :bullets ["Formerly a Java 'Enterprise' developer"
+                "Programming Clojure fulltime for past ~5 years"
                 "Author of 'Clojure in a Bank' blog"
                 "Founded JUXT with Jon Pither"]}
 
@@ -77,39 +80,29 @@
                 "Frustration and confusion is normal, roll with it :)"
                 "Everyone will make silly mistakes"]}
 
-     {:subtitle "Wednesday: Setup, Sequences, State, Structure & Schema"
-      :bullets ["Intro (this)"
-                "Setup"
-                "Clojure recap: sequences"
-                "Component"
-                "Concurrency"
-                "core.async"
-                "Prismatic Schema"]}
-
-     {:subtitle "Thursday: Logic & Data"
-      :bullets ["core.logic (group exercise)"
-                "datalog"
-                "Datomic"
-                "Deployment"]}
-
-     {:subtitle "Friday"
-      :bullets ["Finish off Datomic work"
-                "Testing"
-                "RESTful Clojure (Liberator)"
-                "Techniques for working with large Clojure projects"]}
-
-     #_{:custom agenda
-        :modules [{:id "setup" :model training.setup.model}
-                  {:id "sequences" :model training.sequences.model}
-                  {:id "component" :model training.component.model}
-                  {:id "concurrency" :model training.concurrency.model}
-                  {:id "async" :model training.async.model}
-                  ]}
+     {:custom agenda
+      :subtitle "Thursday: Core language and principles"
+      :modules [{:id "setup" :title "Setup" :model training.setup.model}
+                {:id "clojure" :title "Intro & Basics" :model training.clojure.model}
+                {:title "Protocols and Records"}
+                {:title "Higher order functions"}
+                {:id "concurrency" :model training.concurrency.model}
+                {:id "async" :model training.async.model}]}
 
      {:custom agenda
-      :modules [{:subtitle "Friday: Web"
+      :subtitle "Friday: Real-world Clojure"
+      :modules [{:title "Building websites"}
+                {:title "Testing"}
+                {:title "Deployment"}
+                {:title "core.logic"}
+                {:title "component"}
+                {:title "schema"}
+                ]}
 
-                 }
-
-
+     #_{:custom agenda
+      :modules [{:id "setup" :model training.setup.model}
+                {:id "sequences" :model training.sequences.model}
+                {:id "component" :model training.component.model}
+                {:id "concurrency" :model training.concurrency.model}
+                {:id "async" :model training.async.model}
                 ]}]}))

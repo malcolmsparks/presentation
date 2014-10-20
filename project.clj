@@ -65,6 +65,9 @@
                  org.slf4j/jcl-over-slf4j
                  com.amazonaws/aws-java-sdk]]
 
+   ;; PDF Worksheets
+   [com.itextpdf/itextpdf "5.5.2"]
+
    ;; temp
    [cheshire "5.3.1"]
    [juxt.modular/http-kit "0.5.1"]
