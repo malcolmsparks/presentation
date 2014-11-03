@@ -23,7 +23,6 @@
    [training.pdf :refer (new-worksheets)]
 
    [util.src-browser :refer (new-source-browser)]
-   [util.bootstrap :refer (new-bootstrap-login-form)]
    [util.sse :refer (new-event-service)]
    [util.async :refer (new-channel)]
 
