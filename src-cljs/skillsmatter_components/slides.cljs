@@ -1,4 +1,87 @@
-(ns skillsmatter-components.slides)
+(ns skillsmatter-components.slides
+  (:require
+   [om.core :as om :include-macros true]
+   [sablono.core :as html :refer-macros [html]]))
+
+(defn reduce-over-components [data owner opts]
+  (reify
+    om/IInitState
+    (init-state [_] {:step 2})
+    om/IRender
+    (render [_]
+      (html
+       [:div
+        [:svg {:version "1.1" :width 1000 :height 500}
+         [:rect {:x 0 :y 0 :width 1000 :height 500 :stroke "#444" :stroke-width 3 :fill "none"}]
+
+         (let [system
+               {:a (with-meta {}
+                     {:deps []})
+                :b (with-meta {}
+                     {:deps [:a]})
+                :c (with-meta {}
+                     {:deps [:a]})
+                :d (with-meta {}
+                     {:deps [:b :c]})}
+               start (fn [x] (assoc x :started true))
+
+               steps (reductions
+                      (fn [acc [k v]]
+                        (assoc acc k
+                               (start
+                                (reduce (fn [c k] (assoc c k (get acc k)))
+                                        v (:deps (meta v))))))
+                      system system)
+
+               step (sort (first (drop (om/get-state owner [:step]) steps)))
+               ]
+           (list
+            [:text {:x 30 :y 30} (str (om/get-state owner [:step]))]
+            [:text {:x 430 :y 330} (pr-str step)]
+
+            ;; Decrement
+            [:g {:transform "translate(10,300)"}
+
+             [:g {:onClick (fn [_]
+                                 (om/update-state! owner [:step] dec)
+                                 )}
+              [:rect {:x 0 :y 0 :width 100 :height 50 :fill "green"
+                      }]
+              [:text {:style {:font-size "32pt"}
+                      :x 50 :y 35 :text-anchor "middle" :fill "white"} "-"]]
+
+             ;; Increment
+             [:g {:transform "translate(120,0)"}
+              [:g {:onClick (fn [_]
+                                 (om/update-state! owner [:step] inc)
+                                 )}
+               [:rect {:x 0 :y 0 :width 100 :height 50 :fill "green"
+                       }]
+               [:text {:style {:font-size "32pt"}
+                       :x 50 :y 35 :text-anchor "middle" :fill "white"} "+"]]]]
+
+            (for [[x [k m]] (map vector (range) step)
+                  :let [w 140 gutter 20
+                        started (:started m)]]
+
+              [:g {:transform "translate(10,100)"}
+               [:g {:transform (str "translate(" (* (+ gutter w) x) ", 0)")}
+                [:rect {:x 0 :y 0 :width w :height w
+                        :fill "black"
+                        :stroke-width 2 :stroke "black"}
+                 ]
+                [:circle {:cx (* w (/ 5 6))
+                          :cy (* w (/ 1 6))
+                          :r (/ w 10)
+                          :fill (if started "yellow" "#400")
+                          :stroke-width 3
+                          :stroke "#888"}]
+                [:text {:style {:font-size "64pt"}
+                        :x (/ w 2)
+                        :y (* w (/ 6 8))
+                        :text-anchor "middle"
+                        :fill "white"}
+                 (str (name k))]]])))]]))))
 
 (def model
   (atom
@@ -120,9 +203,14 @@
      {:subtitle "Are we there yet?"
       :bullets ["Ensure system keys are sorted topologically"
                 "Replace :dependencies with metadata"
-                "Handle exceptions nicely"]}
+                "Handle exceptions nicely"
+                "Support 'local' names"]}
 
      {:blockquote "One can only display complex information in the mind. Like seeing, movement or flow or alteration of view is more important than the static picture, no matter how lovely."}
+
+     {:subtitle "Reduce"
+      :custom reduce-over-components
+      }
 
      ;; Diagram of how component reduces
 
