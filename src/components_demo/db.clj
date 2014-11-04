@@ -3,5 +3,5 @@
 (defn insert-user [dbconn username email]
   nil)
 
-(defn connect [opts]
+(defn connect [& opts]
   nil)

@@ -94,7 +94,7 @@
               [:h3 (:author data) ]
               [:h3.twitter (:twitter data)]
               ;;[:h3 (:company data)]
-              ;;[:h3 (:email data)]
+              [:h3 (:email data)]
               [:h3 [:a {:href (:slides data)} (:slides data)]]])
 
            (when-let [bullets (:bullets data)]

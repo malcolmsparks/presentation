@@ -75,10 +75,12 @@
         (let [n (om/get-node owner)]
           (while (.hasChildNodes n)
             (.removeChild n (.-lastChild n))))
-        (let [pre (.createElement js/document "pre")]
-          (.setAttribute pre "style" (str "font-size: " (or (get-in data [:font-size]) "16pt")))
+        (let [pre (.createElement js/document "pre")
+              code (.createElement js/document "code")]
+          (.setAttribute code "style" (str "font-size: " (or (get-in data [:font-size]) "16pt")))
           ;;:font-size
-          (set! (.-innerHTML pre) (.-value (hljs.highlightAuto (om/get-state owner :text))))
+          (set! (.-innerHTML code) (.-value (hljs.highlightAuto (om/get-state owner :text))))
+          (.appendChild pre code)
           (.appendChild (om/get-node owner) pre)
           )))))
 
@@ -111,7 +113,8 @@
       (html
        [:div {:style {:float "right" :width (if (:custom data) "50%" "100%")}}
         [:pre {:style {:font-size (or (get-in data [:font-size]) "10pt")}}
-         (om/get-state owner [:data])]
+         [:code
+          (om/get-state owner [:data])]]
         ]))
 
     #_om/IDidUpdate

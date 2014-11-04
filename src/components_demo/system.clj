@@ -109,6 +109,19 @@
    from email host port user pass))
 ;; END
 
+;; Settings
+{:db {:host "postgres.example.com"
+      :port 5432
+      :user "postgres"
+      :pass "pa$$word"}
+
+ :mail {:host "smtp.example.com"
+        :port 25
+        :user "admin"
+        :pass "letmein"
+        :from "info@juxt.pro"}}
+;; END
+
 
 ;; Version 6: enough already, let's use maps!
 (defn send-email [settings subject message to]
@@ -123,10 +136,7 @@
     :to to}))
 
 (defn send-welcome-email [settings link to]
-  (send-email settings
-              "Welcome!"
-              (str "Please verify your email here: " link)
-              to))
+  )
 
 (defn create-user [settings username email]
   (db/insert-user settings username email)
@@ -149,10 +159,7 @@
     :to to}))
 
 (defn send-welcome-email [settings link to]
-  (send-email settings
-              "Welcome!"
-              (str "Please verify your email here: " link)
-              to))
+  )
 
 (defn create-user [settings username email]
   (db/insert-user (:db settings) username email)
@@ -171,6 +178,8 @@
         }
    :mail {:host "smtp.example.com"
           :port 25
+          :user "admin"
+          :pass "letmein"
           :from "info@juxt.pro"}})
 
 (let [system (create-system)]
@@ -214,7 +223,7 @@
 
 (defn start-system [system]
   (reduce ; here it is!
-   (fn [system key v]
+   (fn [system key]
      (assoc system key (start (get system key))))
    system (keys system)))
 
@@ -224,7 +233,7 @@
 
 
 ;; Example 11: create-user - ok, system is in lexical scope
-#_(let [system (new-system)]
+(let [system (new-system)]
   (create-user (select-keys system [:db :mail])
                "malcolm" "malcolm@juxt.pro"))
 ;; END
@@ -248,17 +257,19 @@
 
 ;; Example 13: dependency injection during start
 (defn- assoc-dependencies [component system]
-  (for [k (:dependencies component)]
-    ;; Inject via assoc!
-    (assoc component k (get system k))))
+  (reduce
+   (fn [component k]
+     ;; Inject via assoc!
+     (assoc component k (get system k)))
+   (:dependencies (meta component))))
 
 (defn start-system [system]
   (reduce ; here it is!
-   (fn [system key v]
+   (fn [system key]
      (assoc system key
-            (start
-             (assoc-dependencies
-              (get system key)))))
+            (-> (get system key)
+                assoc-dependencies
+                start)))
    system (keys system)))
 ;; END
 
@@ -275,7 +286,8 @@
           :port 25
           :from "info@juxt.pro"}
 
-   :other (map->SomeOtherComponent
-           {:port 8080
-            :dependencies [:db :mail]})})
+   :other (with-meta
+            (map->SomeOtherComponent
+             {:port 8080})
+            {:dependencies [:db :mail]})})
 ;; END
