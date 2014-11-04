@@ -32,6 +32,7 @@
                     (string/split-lines (:body e))
                     (drop (dec from))
                     (take (- to from))
+                    (map-indexed (fn [n l] (str n " " l)))
                     (interpose "\n")
                     (apply str))
                    e)))
@@ -43,6 +44,7 @@
                   (when-let [from (:from data)] (str "&from=" from))
                   (when-let [to (:to data)] (str "&to=" to))
                   (when-let [level (:level data)] (str "&level=" level))
+                  (when-let [exclusive (:exclusive data)] (str "&exclusive=" exclusive))
                   (when-let [inclusive (:inclusive data)] (str "&inclusive=" inclusive)))
         :callback (fn [res]
                     (om/set-state! owner :text (:body res)))

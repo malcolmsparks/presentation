@@ -111,8 +111,9 @@
              [:p text])
 
            (when-let [code (:code data)]
-             (om/build src/source-snippet code)
-             )
+             [:div
+              [:h2 (:title code)]
+              (om/build src/source-snippet code)])
 
            (if-let [custom (:custom data)]
              (om/build custom data {:opts (:opts data)})

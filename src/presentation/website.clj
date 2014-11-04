@@ -78,6 +78,16 @@
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
+     ::skillsmatter-components
+     (fn [req]
+       (->> {:body (html [:div#content [:p.loading "Loading..."]])
+             :cljs (html [:script {:type "text/javascript"}
+                          (format "juxt.slideshow.page(%s)"
+                                  "skillsmatter_components.slides.model")])}
+            (merge (dynamic-template-data (:template-model this) req))
+            (parser/render-resource "templates/slides.html.mustache")
+            response))
+
      ::training
      (fn [req]
        (let [module (-> req :route-params :module)]
@@ -138,6 +148,7 @@
           ["speakerconf-2014" ::speakerconf-2014]
           ["euroclojure-2014" ::euroclojure-2014]
           ["clojure-ireland" ::clojure-ireland]
+          ["skillsmatter-components" ::skillsmatter-components]
           ["bidi" ::bidi]
           ["maze" ::maze]
 

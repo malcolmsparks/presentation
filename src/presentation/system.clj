@@ -117,6 +117,11 @@
                      :mains ['clojure-ireland.slides]
                      :dependencies #{:cljs})
 
+   :skillsmatter-components (new-cljs-module
+                             :name :skillsmatter-components
+                             :mains ['skillsmatter-components.slides]
+                             :dependencies #{:cljs})
+
    :slideshow (new-cljs-module
                :name :slideshow
                :mains ['juxt.slideshow]
@@ -168,6 +173,7 @@
                    :speakerconf
                    :euroclojure
                    :clojure-ireland
+                   :skillsmatter-components
                    :training
                    :bidi]}
 

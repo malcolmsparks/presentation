@@ -57,7 +57,7 @@
 
 (defn extract_
   "Filter out lines from 'from' to 'to', each can be numbers, regexes, etc."
-  [lines from to level inclusive?]
+  [lines from to level inclusive? exclusive?]
   (let [level (when level (Integer/parseInt level))
         lines
         (->> lines
@@ -68,9 +68,13 @@
 
         lines (concat (first lines) (map second (rest lines)))]
     (->> lines
+         (?>> exclusive? rest)
          (?>> (not inclusive?) butlast)
          (map second)
          (?>> level filter (comp not #(re-matches (re-pattern (str (apply str (repeat (if level level 0)  "\\s")) ".*")) %)))
+
+;;         (map-indexed (fn [n l] (str (inc n) " " l)))
+
          (interpose "\n")
          (apply str))))
 
@@ -92,8 +96,10 @@
                         level (get query-params "level")
                         inclusive (Boolean/valueOf
                                    (get query-params "inclusive"))
+                        exclusive (Boolean/valueOf
+                                   (get query-params "exclusive"))
                         text (if (or from to) (extract_
-                                               (line-seq (io/reader f)) from to level inclusive) (slurp f))
+                                               (line-seq (io/reader f)) from to level inclusive exclusive) (slurp f))
                         ]
                     (case mtype
                       "text/plain" text
