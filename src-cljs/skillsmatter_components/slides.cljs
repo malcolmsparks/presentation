@@ -263,6 +263,8 @@
         :author "Alan Perlis"
         }
 
+     {:repo ["stuartsierra" "component"]}
+
      {:code {:title "Start with a simple function…"
              :file "src/components_demo/system.clj"
              :lang :clojure
