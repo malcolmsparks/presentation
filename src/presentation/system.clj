@@ -9,12 +9,11 @@
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
    [clojure.core.async :as async]
 
-   [modular.bidi :refer (new-router WebService)]
+   [modular.bidi :refer (new-router new-static-resource-service WebService)]
    [modular.cljs :refer (new-cljs-module new-cljs-builder ClojureScriptModule)]
    [modular.http-kit :refer (new-webserver)]
    [modular.maker :refer (make)]
-   [modular.template :refer (new-static-template-data)]
-   [modular.web-template :refer (new-dependency-dynamic-template-model)]
+   [modular.template :refer (new-static-template-model new-aggregate-template-model)]
    [modular.wire-up :refer (autowire-dependencies-satisfying)]
    [modular.ring :refer (new-web-request-handler-head)]
 
@@ -88,12 +87,14 @@
    :channel (new-channel)
    :sse (new-event-service)
 
+   :react (make new-static-resource-service config :uri-context "/reactjs" :resource-prefix "META-INF/resources/webjars/react/0.11.1")
+
    ;; A template is a RingBinding - it adds :modular.template/template
    ;; to the Ring request.
-   :template-model (make new-dependency-dynamic-template-model config)
+   :template-model (make new-aggregate-template-model config)
 
    ;; Templates collate TemplateModel components. Here's a static one.
-   :web-meta (make new-static-template-data config
+   :web-meta (make new-static-template-model config
                    :org "JUXT"
                    :title "Presentation"
                    :description "Presentation"

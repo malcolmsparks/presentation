@@ -6,7 +6,6 @@
    [cljs.core.async :refer [<! >! chan put! sliding-buffer close! pipe map< filter< mult tap map> timeout]]
    [om.core :as om :include-macros true]
    [sablono.core :as html :refer-macros [html]]
-   [ankha.core :as ankha]
    [goog.events :as events]
    ))
 

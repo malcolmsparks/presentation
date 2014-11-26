@@ -6,7 +6,6 @@
    [cljs.core.async :refer [<! >! chan put! sliding-buffer close! pipe map< filter< mult tap map> buffer dropping-buffer timeout]]
    [om.core :as om :include-macros true]
    [sablono.core :as html :refer-macros [html]]
-   [ankha.core :as ankha]
    [goog.events :as events]
    [goog.events.KeyCodes :as kc]
    [presentation.source :as src]
@@ -192,7 +191,7 @@
 (defn switch-to-hash [model]
   (let [hash (subs (.-hash (.-location js/window)) 1)]
     (when-not (string/blank? hash)
-      (let [current-slide (JSON/parse hash)]
+      (let [current-slide (.parse js/JSON hash)]
         (swap! model assoc-in [:current-slide] current-slide)))))
 
 (defn ^:export page [model]

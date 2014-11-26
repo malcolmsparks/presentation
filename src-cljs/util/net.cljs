@@ -9,6 +9,7 @@
    ;;[schema.core :as s]
    [goog.json :as json]
    [goog.events :as events]
+   [goog.net.EventType :as et]
    ))
 
 ;; XHR
@@ -56,7 +57,7 @@
               content (when-let [content (:content m)] (csk/->js content))]
           (println "creating xhrio: ")
           (doto (new goog.net.XhrIo)
-            (events/listen goog.net.EventType/COMPLETE
+            (events/listen et/COMPLETE
                            (fn [ev]
                              (let [xhrio (.-target ev)
                                    status (.getStatus xhrio)
