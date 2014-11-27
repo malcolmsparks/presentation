@@ -313,7 +313,7 @@
 (defn switch-to-hash []
   (let [hash (subs (.-hash (.-location js/window)) 1)]
     (when-not (string/blank? hash)
-      (let [current-slide (JSON/parse hash)]
+      (let [current-slide (.parse js/JSON hash)]
         (swap! model assoc-in [:current-slide] current-slide)))))
 
 (defn ^:export page []
