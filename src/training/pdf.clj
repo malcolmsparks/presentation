@@ -1,3 +1,4 @@
+
 (ns training.pdf
   (:refer-clojure :exclude [chunk])
   (:require
@@ -586,6 +587,9 @@
       (.add doc Chunk/NEWLINE)
       (.add doc Chunk/NEWLINE))
 
+    (.close doc)
+
+
     ))
 
 (defresource worksheets []
@@ -613,9 +617,10 @@
 (defrecord Worksheets [connection]
   WebService
   (request-handlers [this]
-    {::worksheets (worksheets)})
-  (routes [this] ["/" [["/worksheets.pdf" ::worksheets]
-                       ["/exercise.pdf" ::exercise]]])
+    {::worksheets (worksheets)
+     ::exercise (exercise)})
+  (routes [this] ["/" [["worksheets.pdf" ::worksheets]
+                       ["exercise.pdf" ::exercise]]])
   (uri-context [this] "")
   )
 
