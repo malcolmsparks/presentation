@@ -123,6 +123,11 @@
                              :mains ['skillsmatter-components.slides]
                              :dependencies #{:cljs})
 
+   :bbc (new-cljs-module
+         :name :bbc
+         :mains ['bbc.slides]
+         :dependencies #{:cljs})
+
    :slideshow (new-cljs-module
                :name :slideshow
                :mains ['juxt.slideshow]
@@ -175,6 +180,7 @@
                    :euroclojure
                    :clojure-ireland
                    :skillsmatter-components
+                   :bbc
                    :training
                    :bidi]}
 

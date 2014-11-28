@@ -98,6 +98,16 @@
             (parser/render-resource "templates/slides.html.mustache")
             response))
 
+     ::bbc
+     (fn [req]
+       (->> {:body (html [:div#content [:p.loading "Loading..."]])
+             :cljs (html [:script {:type "text/javascript"}
+                          (format "juxt.slideshow.page(%s)"
+                                  "bbc.slides.model")])}
+            (merge (template-model (:template-model this) req))
+            (parser/render-resource "templates/slides.html.mustache")
+            response))
+
      ::training
      (fn [req]
        (let [module (-> req :route-params :module)]
@@ -159,6 +169,7 @@
           ["euroclojure-2014" ::euroclojure-2014]
           ["clojure-ireland" ::clojure-ireland]
           ["skillsmatter-components" ::skillsmatter-components]
+          ["bbc" ::bbc]
           ["bidi" ::bidi]
           ["maze" ::maze]
 

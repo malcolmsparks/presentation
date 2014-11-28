@@ -592,6 +592,269 @@
 
     ))
 
+(defn write-sse-worksheets [out]
+  (let [doc (Document. PageSize/A4)
+        nf (java.text.NumberFormat/getInstance java.util.Locale/UK)
+        w (PdfWriter/getInstance doc out)
+        title-font (Font. Font$FontFamily/TIMES_ROMAN (float 18) Font/BOLD)
+        heading-font (Font. Font$FontFamily/TIMES_ROMAN (float 10) Font/BOLD)
+        normal-font (Font. Font$FontFamily/TIMES_ROMAN (float 10) Font/NORMAL)
+        monospace-font (Font. Font$FontFamily/COURIER (float 10) Font/NORMAL)]
+
+    (doto doc
+      (.addTitle "JUXT/BBC Clojure Workshop")
+      (.addSubject "Worksheets"))
+
+    (.open doc)
+
+    (with-font title-font
+      (.add doc (center (para "")))
+      (doall (repeatedly 6 #(.add doc Chunk/NEWLINE)))
+      (.add doc (center (doto (Image/getInstance "resources/public/images/BBC.png")
+                          (.scalePercent 25))))
+
+
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "in association with")))
+      (.add doc Chunk/NEWLINE)
+
+      (.add doc (center (doto (Image/getInstance "resources/public/images/juxt.png")
+                          (.scalePercent 25))))
+
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "Async HTTP services with Clojure")))
+      (.add doc (center (para "Worksheets")))
+      (.add doc Chunk/NEWLINE)
+      (with-font title-font
+        (.add doc (center (para "London - 28th November 2014"))))
+
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "Malcolm Sparks")))
+      (.add doc (center (para "@malcolmsparks")))
+      (.add doc (center (para "malcolm@juxt.pro")))
+      )
+
+    (.newPage doc)
+    (with-font heading-font
+      (.add doc (center (para "Clojure Workshop")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "Getting Started")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE))
+
+    (with-font normal-font
+      (.add doc (para "Download Leiningen, see http://leiningen.org"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (with-font monospace-font
+        (.add doc (para "https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"))
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE))
+
+      (.add doc (para "Create a new project with the following comamnd (replacing 'myproj' with a name of your choice)"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (with-font monospace-font
+        (.add doc (para "lein new modular myproj sse"))
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE))
+
+      )
+
+    (.newPage doc)
+    (with-font heading-font
+      (.add doc (center (para "Clojure Workshop")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "core.async - website.clj")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE))
+
+    (with-font normal-font
+      (.add doc (para "What are these expressions for?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (with-font monospace-font
+        (.add doc (para "(buffer 10)"))
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc (para "(chan (buffer 10))"))
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc (para "(go ...)"))
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc (para "(dotimes [n 26] (>! ch (char (+ (int \\A) n))))"))
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE)
+        (.add doc Chunk/NEWLINE))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+
+      )
+
+    (.newPage doc)
+
+    (with-font normal-font
+      (.add doc (para "What do you see when you show the channel.html page?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "How big is the channel?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "What happens when you replace buffer with a dropping-buffer?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "What happens when you replace buffer with a sliding-buffer?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "Can you explain the reason for the behaviours?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+
+
+      )
+
+    (.newPage doc)
+    (with-font heading-font
+      (.add doc (center (para "Clojure Workshop")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "events.clj")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE))
+
+    (with-font normal-font
+      (.add doc (para "What is the purpose of mult?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "What is the purpose of the messages atom?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "What happens on a request to /events/chat.html ?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc (para "What happens on a request to /events/events ?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+
+      )
+
+    (.newPage doc)
+    (with-font heading-font
+      (.add doc (center (para "Clojure Workshop")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc (center (para "Further exercises")))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE))
+
+    (with-font normal-font
+      (.add doc (para "Can you improve the layout of the channel in /channel.html ?"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+
+      (.add doc (para "What is a transducer? Show you can filter messages with a filtering transducer."))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+
+      (.add doc (para "What does alts! do? Make use of alts! and timeout in your project"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+
+      (.add doc (para "Write a test for your website using http-kit's async client"))
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      (.add doc Chunk/NEWLINE)
+      )
+
+    (.close doc)
+    ))
+
+;; ----------------------------------------------------------------------------------
+
 (defresource worksheets []
   :available-media-types #{"application/pdf"}
   :handle-ok
@@ -610,6 +873,15 @@
        out)
       (java.io.ByteArrayInputStream. (.toByteArray out)))))
 
+(defresource sse-worksheets []
+  :available-media-types #{"application/pdf"}
+  :handle-ok
+  (fn [_]
+    (let [out (ByteArrayOutputStream.)]
+      (write-sse-worksheets
+       out)
+      (java.io.ByteArrayInputStream. (.toByteArray out)))))
+
 (defn make-handlers []
   {:worksheets (worksheets)
    :exercise (exercise)})
@@ -618,8 +890,10 @@
   WebService
   (request-handlers [this]
     {::worksheets (worksheets)
-     ::exercise (exercise)})
+     ::exercise (exercise)
+     ::sse-worksheets (sse-worksheets)})
   (routes [this] ["/" [["worksheets.pdf" ::worksheets]
+                       ["sse.pdf" ::sse-worksheets]
                        ["exercise.pdf" ::exercise]]])
   (uri-context [this] "")
   )
