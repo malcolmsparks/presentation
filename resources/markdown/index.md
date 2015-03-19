@@ -29,7 +29,6 @@
 * [Liberator](/training/liberator) - REST API development
 * [Modular](/training/modular) - Modular systems architecture
 * [Om](/training/om) and ClojureScript
-* [Pedestal](/training/pedestal) - Building websites with dataflow
 * [Protocols](/training/protocols) & Records (including multi-methods)
 * [Setup](/training/setup) - Getting setup with projects
 * [Testing](/training/testing) with clojure.test
