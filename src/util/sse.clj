@@ -1,7 +1,7 @@
 (ns util.sse
   (:require
    [com.stuartsierra.component :as component]
-   [modular.bidi :refer (WebService)]
+   [bidi.bidi :refer (RouteProvider tag)]
    [org.httpkit.server :refer (with-channel send! on-close)]
    [org.httpkit.timer :refer (schedule-task)]
    [clojure.core.async :as async :refer (go <!)]
@@ -28,10 +28,10 @@
                 (recur)))))))))
 
 (defrecord EventService []
-  WebService
-  (request-handlers [this] {::events (server-event-source (-> this :channel :channel))})
-  (routes [_] ["" ::events])
-  (uri-context [_] "/events"))
+  RouteProvider
+  (routes [this]
+    ["/events"
+     (-> this :channel :channel server-event-source (tag ::events))]))
 
 (defn new-event-service [& {:as opts}]
   (component/using

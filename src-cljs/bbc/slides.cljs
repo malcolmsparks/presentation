@@ -10,7 +10,7 @@
   (atom
    {:current-slide 1
     :slides
-    [{:title "Highly Concurrent HTTP with Clojure!!!!"
+    [{:title "Highly Concurrent HTTP with Clojure"
       :event "BBC, Broadcasting Centre, White City – November 2014"
       :author "Malcolm Sparks"
       :email "malcolm@juxt.pro"

@@ -6,13 +6,13 @@
    [clojure.java.io :as io]
    [clojure.pprint :refer (pprint)]
    [com.stuartsierra.component :as component]
-   [bidi.bidi :refer (path-for)]
+   [bidi.bidi :refer (path-for tag RouteProvider)]
    [bidi.ring :refer (redirect resources-maybe)]
    [hiccup.core :refer (html)]
    [garden.core :refer (css)]
    [garden.units :refer (pt em px)]
    [garden.color :refer (rgb)]
-   [modular.bidi :refer (WebService)]
+   [bidi.bidi :refer (RouteProvider)]
    [clojure.tools.logging :refer :all]
 
    [ring.middleware.params :refer (wrap-params)]
@@ -46,145 +46,147 @@
   x)
 
 (defrecord Website []
+  RouteProvider
+  (routes [this]
+    ["/"
+     [["" (redirect ::index)]
+      ["" (resources-maybe {:prefix "public/"})]
 
-  WebService
+      ["index"
+       (-> (fn [{routes :modular.bidi/routes :as req}]
+             (infof "template model: %s" (template-model (:template-model this) req))
+             (->> (markdown-body "markdown/index.md" routes)
+                  (->>spy "markdown")
+                  (merge (template-model (:template-model this) req))
+                  (->>spy "merged with template model")
+                  (parser/render-resource "templates/page.html.mustache")
+                  (->>spy "body")
+                  response))
+           (tag ::index))]
 
-  (request-handlers [this]
-    {::index
-     (fn [{routes :modular.bidi/routes :as req}]
-       (infof "template model: %s" (template-model (:template-model this) req))
-       (->> (markdown-body "markdown/index.md" routes)
-            (->>spy "markdown")
-            (merge (template-model (:template-model this) req))
-            (->>spy "merged with template model")
-            (parser/render-resource "templates/page.html.mustache")
-            (->>spy "body")
-            response))
+      ["css/style.css" (-> slides/styles (tag ::styles))]
 
-     ::speakerconf-2014
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                         "speakerconf_2014.slides.page()"])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")
-            response))
+      ["speakerconf-2014"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             "speakerconf_2014.slides.page()"])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")
+               response))
+        (tag ::speakerconf-2014))]
 
-     ::euroclojure-2014
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                         "euroclojure_2014.slides.page()"])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")
-            response))
+      ["euroclojure-2014"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             "euroclojure_2014.slides.page()"])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")
+               response))
+        (tag ::euroclojure-2014))]
 
-     ::clojure-ireland
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                         "clojure_ireland.slides.page()"])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")
-            response))
+      ["clojure-ireland"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             "clojure_ireland.slides.page()"])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")
+               response))
+        (tag ::clojure-ireland))]
 
-     ::skillsmatter-components
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                          (format "juxt.slideshow.page(%s)"
-                                  "skillsmatter_components.slides.model")])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")
-            response))
+      ["skillsmatter-components"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             (format "juxt.slideshow.page(%s)"
+                                     "skillsmatter_components.slides.model")])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")
+               response))
+        (tag ::skillsmatter-components))]
 
-     ::bbc
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                          (format "juxt.slideshow.page(%s)"
-                                  "bbc.slides.model")])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")
-            response))
+      ["bbc"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             (format "juxt.slideshow.page(%s)"
+                                     "bbc.slides.model")])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")
+               response))
+        (tag ::bbc))]
 
-     ::training
-     (fn [req]
-       (let [module (-> req :route-params :module)]
-         (->> {:body (html [:div#content [:p.loading "Loading..."]])
-               :cljs (html [:script {:type "text/javascript"}
-                            (format "juxt.slideshow.page(%s)"
-                                    (format "training.%s.model" module))])}
-              (merge (template-model (:template-model this) req))
-              (parser/render-resource "templates/slides.html.mustache")
-              response)))
+      ["bidi"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             "bidi.bidi.page()"])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")
+               response))
+        (tag ::bidi))]
 
-     ::bidi
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                         "bidi.bidi.page()"])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")
-            response))
+      ["maze"
+       (->
+        (fn [req]
+          (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                :cljs (html [:script {:type "text/javascript"}
+                             "maze.page()"])}
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/slides.html.mustache")))
+        (tag ::maze))]
 
-     ::maze
-     (fn [req]
-       (->> {:body (html [:div#content [:p.loading "Loading..."]])
-             :cljs (html [:script {:type "text/javascript"}
-                         "maze.page()"])}
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/slides.html.mustache")))
+      [["training/" :module]
+       (->
+        (fn [req]
+          (let [module (-> req :route-params :module)]
+            (->> {:body (html [:div#content [:p.loading "Loading..."]])
+                  :cljs (html [:script {:type "text/javascript"}
+                               (format "juxt.slideshow.page(%s)"
+                                       (format "training.%s.model" module))])}
+                 (merge (template-model (:template-model this) req))
+                 (parser/render-resource "templates/slides.html.mustache")
+                 response)))
+        (tag ::training))]
 
-     ::logo (->
-             (fn [req]
-               (url-response (io/resource "public/logo.svg")))
-             wrap-file-info wrap-content-type)
+      ["source" (-> (src/source-resource) wrap-params)]
 
-     ::architecture
-     (fn [{routes :modular.bidi/routes :as req}]
-       (->> (markdown-body "markdown/architecture.md" routes)
-            (merge (template-model (:template-model this) req))
-            (parser/render-resource "templates/page.html.mustache")
-            response))
+      ["dependencies" (-> (dependencies-resource)
+                          (tag ::deps))]
 
-     ::architecture-diagram
-     (->
-      (fn [req]
-        (url-response (io/resource "architecture/system.svg")))
-      wrap-file-info wrap-content-type)
+      ["architecture"
+       (->
+        (fn [{routes :modular.bidi/routes :as req}]
+          (->> (markdown-body "markdown/architecture.md" routes)
+               (merge (template-model (:template-model this) req))
+               (parser/render-resource "templates/page.html.mustache")
+               response))
+        (tag ::architecture))]
 
-     ::deps (dependencies-resource)
+      ["architecture.svg"
+       (->
+        (fn [req]
+          (url-response (io/resource "architecture/system.svg")))
+        (tag ::architecture-diagram)
+        wrap-file-info wrap-content-type)]
 
-     ::styles slides/styles})
+      ["juxt.svg"
+       (->
+        (fn [req]
+          (url-response (io/resource "public/logo.svg")))
+        wrap-file-info wrap-content-type
+        (tag :logo))]
 
-  (routes [_]
-    ["/" [["" (redirect ::index)]
-          ["" (resources-maybe {:prefix "public/"})]
+      ]]))
 
-          ["index" ::index]
-          ["css/style.css" ::styles]
-
-          ["speakerconf-2014" ::speakerconf-2014]
-          ["euroclojure-2014" ::euroclojure-2014]
-          ["clojure-ireland" ::clojure-ireland]
-          ["skillsmatter-components" ::skillsmatter-components]
-          ["bbc" ::bbc]
-          ["bidi" ::bidi]
-          ["maze" ::maze]
-
-          [["training/" :module] ::training]
-
-          ["source" (-> (src/source-resource) wrap-params)]
-
-          ["dependencies" ::deps]
-
-          ["architecture" ::architecture]
-          ["architecture.svg" ::architecture-diagram]
-          ["juxt.svg" ::logo]
-          ]])
-
-  (uri-context [_] ""))
 
 (defn new-website []
   (->Website))

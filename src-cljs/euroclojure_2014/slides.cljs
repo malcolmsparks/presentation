@@ -906,7 +906,7 @@
      {:image "/images/bidi.png"
       :text "Dispatch and forge URIs from the same route data"}
 
-     ;; We are going to introduce bidi here, by explaining the WebService protocol in detail here
+     ;; We are going to introduce bidi here, by explaining the WebService in detail here
 
      ;; DRY section here?
 

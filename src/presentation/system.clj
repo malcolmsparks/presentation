@@ -9,7 +9,8 @@
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
    [clojure.core.async :as async]
 
-   [modular.bidi :refer (new-router new-static-resource-service WebService)]
+   [bidi.bidi :refer (RouteProvider)]
+   [modular.bidi :refer (new-router new-web-resources)]
    [modular.cljs :refer (new-cljs-module new-cljs-builder ClojureScriptModule)]
    [modular.http-kit :refer (new-webserver)]
    [modular.maker :refer (make)]
@@ -74,20 +75,20 @@
    ;; request map
    :webhead (make new-web-request-handler-head)
 
-   ;; A router collates WebService components and routes requests to
+   ;; A router collates RouteProvider components and routes requests to
    ;; them. Note bidi's route compilation doesn't yet work with
    ;; pattern segments used in the routes, so we tell it not to
    ;; compile
    :router (make new-router config)
 
-   ;; A website is an example of a WebService
+   ;; A website is an example of a RouteProvider
    :website (make new-website)
 
    ;; Push eventing
    :channel (new-channel)
    :sse (new-event-service)
 
-   :react (make new-static-resource-service config :uri-context "/reactjs" :resource-prefix "META-INF/resources/webjars/react/0.11.1")
+   :react (make new-web-resources config :uri-context "/reactjs" :resource-prefix "META-INF/resources/webjars/react/0.11.1")
 
    ;; A template is a RingBinding - it adds :modular.template/template
    ;; to the Ring request.
@@ -153,7 +154,7 @@
    :cljs-builder
    (new-cljs-builder :id :slides :source-path "src-cljs")
 
-   ;; Another WebService
+   ;; Another RouteProvider
    :src-browser (new-source-browser)
 
    :worksheets (new-worksheets)
@@ -164,7 +165,7 @@
    {:webserver {:request-handler :webhead}
     :webhead {:request-handler :router}
 
-    ;; The :router brings in all the WebService records, one of which
+    ;; The :router brings in all the RouteProvider records, one of which
     ;; is...
     :website [:template-model]
 
@@ -184,7 +185,7 @@
                    :training
                    :bidi]}
 
-   (autowire-dependencies-satisfying system-map :router WebService)
+   (autowire-dependencies-satisfying system-map :router RouteProvider)
    ))
 
 (defn get-dependency-map []

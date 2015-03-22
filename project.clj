@@ -31,19 +31,20 @@
    ;;[ring/ring-core "1.2.2"]
 
    ;; Pre-built components supplied by modular
-   [juxt.modular/bidi "0.5.4"]
-   [juxt.modular/cljs "0.5.3" :exclusions [thheller/shadow-build]]
+   [juxt.modular/bidi "0.9.2"]
+   [juxt.modular/cljs "0.6.0" :exclusions [thheller/shadow-build]]
    [thheller/shadow-build "0.9.5"]
    [juxt.modular/clostache "0.6.0"]
-   [juxt.modular/http-kit "0.5.1"]
+   [juxt.modular/http-kit "0.5.3"]
    [juxt.modular/maker "0.5.0"]
-   [juxt.modular/template "0.6.0"]
+   [juxt.modular/template "0.6.2"]
    [juxt.modular/wire-up "0.5.0"]
+   [juxt.modular/co-dependency "0.2.0"]
    [cylon "0.5.0-20141113.002430-27" :exclusions [ring/ring-core org.clojure/data.json]]
 
    ;; Utility
    [camel-snake-kebab "0.1.4"]
-   [prismatic/schema "0.2.1"]
+   [prismatic/schema "0.3.5"]
    [org.clojure/core.async "0.1.346.0-17112a-alpha"]
    [com.taoensso/timbre "3.0.1"]
    [cheshire "5.3.1"]

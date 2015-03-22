@@ -1,9 +1,8 @@
-
 (ns training.pdf
   (:refer-clojure :exclude [chunk])
   (:require
    [liberator.core :refer (defresource)]
-   [modular.bidi :refer (WebService)])
+   [bidi.bidi :refer (RouteProvider tag)])
   (:import
    (com.itextpdf.text Document Paragraph Font Font$FontFamily Chunk BaseColor PageSize Phrase Rectangle Element Section Chapter ChapterAutoNumber Image)
    (com.itextpdf.text.pdf PdfWriter PdfPTable PdfPCell PdfPCellEvent)
@@ -887,16 +886,11 @@
    :exercise (exercise)})
 
 (defrecord Worksheets [connection]
-  WebService
-  (request-handlers [this]
-    {::worksheets (worksheets)
-     ::exercise (exercise)
-     ::sse-worksheets (sse-worksheets)})
-  (routes [this] ["/" [["worksheets.pdf" ::worksheets]
-                       ["sse.pdf" ::sse-worksheets]
-                       ["exercise.pdf" ::exercise]]])
-  (uri-context [this] "")
-  )
+  RouteProvider
+  (routes [_]
+    ["/" [["worksheets.pdf" (-> (worksheets) (tag ::worksheets))]
+          ["sse.pdf" (-> (sse-worksheets) (tag ::sse-worksheets))]
+          ["exercise.pdf" (-> (exercise) (tag ::exercise))]]]))
 
 (defn new-worksheets [& {:as opts}]
   (->> opts

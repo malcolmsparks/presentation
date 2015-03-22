@@ -1,7 +1,7 @@
 (ns presentation.sudoku-web
   (:require
    [sudoku :refer (solve)]
-   [modular.bidi :refer (WebService)]
+   [bidi.bidi :refer (RouteProvider tag)]
    [liberator.core :refer (defresource)]
    [clojure.edn :as edn]
    [clojure.java.io :as io]))
@@ -20,11 +20,8 @@
                (partition 9 solution)))
 
 (defrecord SudokuHandler []
-  WebService
-  (request-handlers [_] {::sudoku sudoku-resource})
-  (routes [_] ["/sudoku" ::sudoku])
-  (uri-context [_] ""))
-
+  RouteProvider
+  (routes [_] ["/sudoku" (tag sudoku-resource ::sudoku)]))
 
 (defn new-sudoku-handler [& {:as opts}]
   (->> opts
